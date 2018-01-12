@@ -5,8 +5,8 @@ const Header = props => {
     'newComponent': 'Component',
     'component': 'Component',
     'ruleSelector': 'Rule Selector',
-    'newRules': 'Rule',
-    'rules': 'Rule'
+    'newRule': 'Rule',
+    'rule': 'Rule'
   }[props.currentTab.type]
 
   return (

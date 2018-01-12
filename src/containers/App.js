@@ -59,8 +59,19 @@ class App extends React.Component {
           });
           break;
         case 'newRule':
+          this.setState({
+            currentName: '',
+            currentFormula: '[]'
+          });
           break;
         case 'rule':
+          const ruleIndex = this.state.rules.findIndex(rule => rule.name === this.state.currentTab.name);
+          this.setState({
+            currentName: this.state.rules[ruleIndex].name,
+            currentFormula: this.state.rules[ruleIndex].formula
+          });
+          break;
+        default:
           break;
       };
     })
@@ -87,8 +98,12 @@ class App extends React.Component {
             this.saveRuleSelector();
             break;
           case 'newRule':
+            this.saveNewRule();
             break;
           case 'rule':
+            this.saveRule();
+            break;
+          default:
             break;
         };
       }
@@ -120,51 +135,36 @@ class App extends React.Component {
     this.setState({ruleSelector}, this.changeTab('ruleSelector', this.state.currentName));
   }
 
+  saveNewRule = () => {
+    const rules = this.state.rules;
+    rules.push({name: this.state.currentName, formula: this.state.currentFormula});
+
+    this.setState({rules}, this.changeTab('rule', this.state.currentName));
+  }
+
+  saveRule = () => {
+    const ruleIndex = this.state.rules.findIndex(rule => rule.name === this.state.currentTab.name);
+
+    const rules = this.state.rules;
+    rules[ruleIndex].name = this.state.currentName;
+    rules[ruleIndex].formula = this.state.currentFormula;
+
+    this.setState({rules}, this.changeTab('rule', this.state.currentName));
+  }
+
   runValidations = () => {
-    switch (this.state.currentTab.type) {
-      case 'newComponent':
-        return this.validateComponent();
-        break;
-      case 'component':
-        return this.validateComponent();
-        break;
-      case 'ruleSelector':
-        return this.validateRuleSelector();
-        break;
-      case 'newRule':
-        break;
-      case 'rule':
-        break;
-    };
-  }
-
-  validateComponent = () => {
     const validation = this.state.validation
 
     if (!this.state.currentName) validation['name'].push('Name cannot be blank.');
-
-    const nameExists = this.state.components.findIndex(component => component.name === this.state.currentName) !== -1;
-    if (nameExists) validation['name'].push('A component with this name already exists.');
+    if (this.state.currentTab.type !== 'ruleSelector' && this.checkDuplicateName()) validation['name'].push('A rule with this name already exists.');
 
     this.setState({validation});
-    if (validation.name.length === 0 && validation.formula.length === 0) {
-      return true;
-    } else {
-      return false;
-    };
+    return (validation.name.length === 0 && validation.formula.length === 0);
   }
 
-  validateRuleSelector = () => {
-    const validation = this.state.validation
-
-    if (!this.state.currentName) validation['name'].push('Name cannot be blank.');
-
-    this.setState({validation});
-    if (validation.name.length === 0 && validation.formula.length === 0) {
-      return true;
-    } else {
-      return false;
-    };
+  checkDuplicateName = () => {
+    const componentsOrRulesArray = (this.state.currentTab.type === 'component' || this.state.currentTab.type === 'newComponent') ? this.state.components : this.state.rules;
+    return this.state.currentName !== this.state.currentTab.name && componentsOrRulesArray.findIndex(componentOrRule => componentOrRule.name === this.state.currentName) !== -1;
   }
 
   render () {

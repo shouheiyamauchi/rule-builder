@@ -5,8 +5,8 @@ const Formula = props => {
     'newComponent': 'Component Builder',
     'component': 'Component Builder',
     'ruleSelector': 'Rule Selector Builder',
-    'newRules': 'Rule Builder',
-    'rules': 'Rule Builder'
+    'newRule': 'Rule Builder',
+    'rule': 'Rule Builder'
   }[props.currentTab.type]
 
   return (
