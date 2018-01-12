@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from "jquery";
 import RulesMenu from '../components/RulesMenu';
 import Header from '../components/Header';
 import Components from './Components';
@@ -46,7 +47,7 @@ class App extends React.Component {
           });
           break;
         case 'component':
-          const componentIndex = this.state.components.findIndex(component => component.name === this.state.currentTab.name);
+          const componentIndex = this.findIndexWithName(this.state.components, this.state.currentTab.name);
           this.setState({
             currentName: this.state.components[componentIndex].name,
             currentFormula: this.state.components[componentIndex].formula
@@ -65,7 +66,7 @@ class App extends React.Component {
           });
           break;
         case 'rule':
-          const ruleIndex = this.state.rules.findIndex(rule => rule.name === this.state.currentTab.name);
+          const ruleIndex = this.findIndexWithName(this.state.rules, this.state.currentTab.name);
           this.setState({
             currentName: this.state.rules[ruleIndex].name,
             currentFormula: this.state.rules[ruleIndex].formula
@@ -77,7 +78,7 @@ class App extends React.Component {
     })
   }
 
-  handleChange = (e) => {
+  handleChange = e => {
     const value = e.target.value;
     const name = e.target.name
 
@@ -118,7 +119,7 @@ class App extends React.Component {
   }
 
   saveComponent = () => {
-    const componentIndex = this.state.components.findIndex(component => component.name === this.state.currentTab.name);
+    const componentIndex = this.findIndexWithName(this.state.components, this.state.currentTab.name);
 
     const components = this.state.components;
     components[componentIndex].name = this.state.currentName;
@@ -143,7 +144,7 @@ class App extends React.Component {
   }
 
   saveRule = () => {
-    const ruleIndex = this.state.rules.findIndex(rule => rule.name === this.state.currentTab.name);
+    const ruleIndex = this.findIndexWithName(this.state.rules, this.state.currentTab.name);
 
     const rules = this.state.rules;
     rules[ruleIndex].name = this.state.currentName;
@@ -156,6 +157,7 @@ class App extends React.Component {
     const validation = this.state.validation
 
     if (!this.state.currentName) validation['name'].push('Name cannot be blank.');
+    if (this.state.currentName === 'formula') validation['name'].push('The name "formula" is reserved and cannot be used.');
     if (this.state.currentTab.type !== 'ruleSelector' && this.checkDuplicateName()) validation['name'].push('A rule with this name already exists.');
 
     this.setState({validation});
@@ -164,7 +166,20 @@ class App extends React.Component {
 
   checkDuplicateName = () => {
     const componentsOrRulesArray = (this.state.currentTab.type === 'component' || this.state.currentTab.type === 'newComponent') ? this.state.components : this.state.rules;
-    return this.state.currentName !== this.state.currentTab.name && componentsOrRulesArray.findIndex(componentOrRule => componentOrRule.name === this.state.currentName) !== -1;
+    return this.state.currentName !== this.state.currentTab.name && this.findIndexWithName(componentsOrRulesArray, this.state.currentName) !== -1;
+  }
+
+  // IE10 doesn't support findIndex
+  findIndexWithName = (componentsOrRulesArray, name) => {
+    var index = -1;
+    for (var i = 0; i < componentsOrRulesArray.length; ++i) {
+      if (componentsOrRulesArray[i].name === name) {
+        index = i;
+        break;
+      }
+    }
+
+    return index;
   }
 
   render () {
