@@ -1,4 +1,5 @@
 import React from 'react';
+import DragAndDropFormula from './DragAndDropFormula';
 
 const Formula = props => {
   const formTitle = {

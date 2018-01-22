@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import App from './containers/App';
+import App from './RuleBuilder/containers/App';
 
 class Main extends Component {
   render() {

@@ -1,9 +1,49 @@
 import React from 'react';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 import $ from "jquery";
+import DragAndDropFormula from './DragAndDropFormula';
 import RulesMenu from '../components/RulesMenu';
 import Header from '../components/Header';
 import Components from './Components';
 import Formula from './Formula';
+
+const values = {
+  logicElements: [
+    '1', '+', '2', '*', ['1', '8', '*', [['9000']], '+', '@1', '+', '@2', '#2']
+  ],
+  componentTemplateItems: {
+    '1': {
+      value: 'Component 1',
+      color: 'brown',
+      canDrag: true
+    },
+    '2': {
+      value: 'Component 2',
+      color: 'orange',
+      canDrag: false
+    },
+    '3': {
+      value: 'Component 3',
+      color: 'grey',
+      canDrag: false
+    }
+  },
+  variableTemplateItems: {
+    '1': {
+      value: 'Variable 1',
+      color: 'green'
+    },
+    '2': {
+      value: 'Variable 2',
+      color: '#fff000'
+    },
+    '3': {
+      value: 'Variable 3',
+      color: 'pink'
+    }
+  }
+}
 
 class App extends React.Component {
   constructor(props) {
@@ -194,7 +234,10 @@ class App extends React.Component {
           </span>
           <div style={{clear: 'both'}}></div>
         </div>
-        <div className="col-md-3">
+        <div className="col-md-12">
+          <DragAndDropFormula values={values} changeTab={this.changeTab} />
+        </div>
+        {/* <div className="col-md-3">
           <Components components={this.state.components} changeTab={this.changeTab} />
         </div>
         <div className="col-md-9">
@@ -209,10 +252,11 @@ class App extends React.Component {
             handleChange={this.handleChange}
             saveChanges={this.saveChanges}
           />
-        </div>
+        </div> */}
       </div>
     );
   }
 }
 
-export default App;
+export default DragDropContext(HTML5Backend)(App);
+// export default App;
