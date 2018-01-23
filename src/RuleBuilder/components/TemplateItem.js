@@ -11,7 +11,7 @@ const templateItemSource = {
 		return {
 			id: props.newId,
 			index: props.index,
-			templateItemType: props.templateItemType
+			value: props.value
 		};
 	},
 	canDrag(props) {
@@ -34,20 +34,24 @@ class TemplateItem extends Component {
 		type: PropTypes.string.isRequired,
 		value: PropTypes.string.isRequired,
 		color: PropTypes.string,
-		templateItemType: PropTypes.string.isRequired,
+		componentTemplateItems: PropTypes.object.isRequired,
+		variableTemplateItems: PropTypes.object.isRequired,
 		renderIcon: PropTypes.func.isRequired,
-		canDrag: PropTypes.bool.isRequired
+		canDrag: PropTypes.bool.isRequired,
+		onClick: PropTypes.func
 	}
 
-	render() {
+	renderObject = props => {
 		const {
-			connectDragSource,
 			type,
 			value,
 			color,
+			componentTemplateItems,
+			variableTemplateItems,
 			renderIcon,
-			canDrag
-		} = this.props
+			canDrag,
+			onClick
+		} = props
 
 		const style = _.clone(ItemCss.templateItemStyle)
 
@@ -55,8 +59,22 @@ class TemplateItem extends Component {
 		if (color) style.backgroundColor = color
 		if (!canDrag) { style.opacity = 0.5 ; style.color = 'grey' }
 
+		if (type === 'component') {
+			return <div onClick={onClick} style={{ ...style }}>{componentTemplateItems[value].title}</div>
+		} else if (type === 'variable') {
+			return <div style={{ ...style }}>{variableTemplateItems[value].title}</div>
+		} else {
+			return <div style={{ ...style }}>{renderIcon(value)}</div>
+		};
+	}
+
+	render() {
+		const {
+			connectDragSource
+		} = this.props
+
 		return connectDragSource(
-			<div style={{ ...style }}>{renderIcon(value)}</div>
+			this.renderObject(this.props)
 		);
 	}
 }

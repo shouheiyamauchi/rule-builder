@@ -9,8 +9,8 @@ const RulesMenu = props => {
       <ul className="dropdown-menu">
         <li><a onClick={() => props.changeTab('ruleSelector', props.ruleSelector.name)}>Edit Rule Selector</a></li>
         <li><a onClick={() => props.changeTab('newRule', '')}>Add New Rule</a></li>
-        {props.rules.length === 0 ? null : <li className="divider"></li>}
-        {props.rules.map((rule, index) => <li key={index}><a onClick={() => props.changeTab('rule', rule.name)}>{rule.name}</a></li>)}
+        {Object.keys(props.rules).length === 0 ? null : <li className="divider"></li>}
+        {Object.keys(props.rules).map((key, index) => <li key={index}><a onClick={() => props.changeTab('rule', key)}>{props.rules[key].name}</a></li>)}
       </ul>
     </div>
   );

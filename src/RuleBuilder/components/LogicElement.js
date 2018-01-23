@@ -81,20 +81,20 @@ class LogicElement extends Component {
 				</div>
 			);
 		} else if (type === 'component') {
-			style.backgroundColor = componentTemplateItems[value.substr(1)].color
+			style.backgroundColor = componentTemplateItems[value].color
 			return (
 				<div style={{ opacity }} id={'rule-builder-id-' + id}>
 					<div style={style}>
-						{componentTemplateItems[value.substr(1)].value}
+						{componentTemplateItems[value].title}
 					</div>
 				</div>
 			);
 		} else if (type === 'variable') {
-			style.backgroundColor = variableTemplateItems[value.substr(1)].color
+			style.backgroundColor = variableTemplateItems[value].color
 			return (
 				<div style={{ opacity }} id={'rule-builder-id-' + id}>
 					<div style={style}>
-						{variableTemplateItems[value.substr(1)].value}
+						{variableTemplateItems[value].title}
 					</div>
 				</div>
 			);

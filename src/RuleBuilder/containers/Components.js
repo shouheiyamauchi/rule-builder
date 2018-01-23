@@ -9,8 +9,10 @@ const Components = props => {
     newId,
     changeTab,
     componentTemplateItems,
+    variableTemplateItems,
     updateDragging,
-    renderIcon
+    renderIcon,
+    getElementType
   } = props
 
   return (
@@ -32,13 +34,15 @@ const Components = props => {
       <div style={style}>
         {Object.keys(componentTemplateItems).map((key, i) => (
           <TemplateItem
+            onClick={() => props.changeTab('component', componentTemplateItems[key].value)}
             index={key}
             key={i}
             newId={newId}
-            type={componentTemplateItems[key].type}
+            type={getElementType(componentTemplateItems[key].value)}
             value={componentTemplateItems[key].value}
             color={componentTemplateItems[key].color}
-            templateItemType="component"
+            componentTemplateItems={componentTemplateItems}
+            variableTemplateItems={variableTemplateItems}
             updateDragging={updateDragging}
             renderIcon={renderIcon}
             canDrag={componentTemplateItems[key].canDrag}
@@ -55,7 +59,8 @@ Components.propTypes = {
   changeTab: PropTypes.func.isRequired,
   componentTemplateItems: PropTypes.object.isRequired,
   updateDragging: PropTypes.func.isRequired,
-  renderIcon: PropTypes.func.isRequired
+  renderIcon: PropTypes.func.isRequired,
+  getElementType: PropTypes.func.isRequired
 };
 
 export default Components;

@@ -1,5 +1,4 @@
 import React from 'react';
-import DragAndDropFormula from './DragAndDropFormula';
 
 const Formula = props => {
   const formTitle = {
@@ -20,14 +19,6 @@ const Formula = props => {
           {props.validation.name.map((error, index) => <li className="parsley-required" key={index}>{error}</li>)}
         </ul>
       </div>
-      <div className="form-group">
-        <label>Logic</label>
-        <input name="currentFormula" className={'form-control' + (props.validation.formula.length === 0 ? '' : ' parsley-error')} value={props.currentFormula} onChange={props.handleChange} />
-        <ul className="parsley-errors-list">
-          {props.validation.formula.map((error, index) => <li className="parsley-required" key={index}>{error}</li>)}
-        </ul>
-      </div>
-      <button className="btn btn-info pull-right" type="button" onClick={props.saveChanges}>Save</button>
     </div>
   );
 }

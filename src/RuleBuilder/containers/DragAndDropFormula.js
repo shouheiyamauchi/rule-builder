@@ -1,13 +1,23 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import $ from 'jquery';
 import * as Typicons from 'react-icons/lib/ti'
 import ItemTypes from '../config/ItemTypes';
+import DropLayer from './DropLayer'
 import Components from './Components'
 import TemplateItem from '../components/TemplateItem';
 import LogicElement from '../components/LogicElement';
 
 class DragAndDropFormula extends Component {
+  static propTypes = {
+    currentTab: PropTypes.object.isRequired,
+    values: PropTypes.object.isRequired,
+    changeTab: PropTypes.func.isRequired,
+    saveChanges: PropTypes.func.isRequired,
+    updateCurrentFormula: PropTypes.func.isRequired
+  }
+
   constructor(props) {
     super(props);
 
@@ -20,41 +30,7 @@ class DragAndDropFormula extends Component {
         hoverId: '',
         leftOrRightOverHoverItem: ''
       },
-      basicTemplateItems: [
-        {
-          value: '+'
-        },
-        {
-          value: '-'
-        },
-        {
-          value: '*'
-        },
-        {
-          value: '/'
-        },
-        {
-          value: '<'
-        },
-        {
-          value: '>'
-        },
-        {
-          value: '<='
-        },
-        {
-          value: '>='
-        },
-        {
-          value: '='
-        },
-        {
-          value: 'Number'
-        },
-        {
-          value: '( )'
-        }
-      ],
+      basicTemplateItems: ['+', '-', '*', '/', '<', '>', '<=', '>=', '=', 'Number', '( )'],
       componentTemplateItems: {},
       variableTemplateItems: {},
       logicElements: []
@@ -62,66 +38,37 @@ class DragAndDropFormula extends Component {
   }
 
   componentDidMount() {
-    this.setAllVariablesFormulas();
+    this.setAllVariablesFormulas(this.props);
   }
 
-  setAllVariablesFormulas = () => {
-    const logicElementsAndId = this.assignIdAndTypetoLogicElements(this.props.values.logicElements, 0);
+  setAllVariablesFormulas = (props) => {
+    const values = _.cloneDeep(props.values);
 
     this.setState({
-      newId: logicElementsAndId.currentId,
-      componentTemplateItems: this.assignComponentVariableTypes(this.props.values.componentTemplateItems, 'component'),
-      variableTemplateItems: this.assignComponentVariableTypes(this.props.values.variableTemplateItems, 'variable'),
-      logicElements: logicElementsAndId.logicElementsArray
+      newId: values.startingId,
+      componentTemplateItems: values.componentTemplateItems,
+      variableTemplateItems: values.variableTemplateItems,
+      logicElements: values.logicElements
     });
   }
-
-  assignIdAndTypetoLogicElements = (logicElementsArray, startingId) => {
-    let currentId = startingId;
-
-    for (let i = 0; i < logicElementsArray.length; i++) {
-      const logicElementValue = logicElementsArray[i];
-
-      logicElementsArray[i] = {};
-      logicElementsArray[i].id = currentId;
-      logicElementsArray[i].value = logicElementValue;
-      currentId++;
-
-      if (logicElementValue.constructor === Array) {
-        currentId = this.assignIdAndTypetoLogicElements(logicElementsArray[i].value, currentId).currentId;
-      };
-    };
-
-    return {
-      logicElementsArray,
-      currentId
-    };
-  }
-
-  assignComponentVariableTypes = (componentsOrVariablesObject, typeString) => {
-    const keys = Object.keys(componentsOrVariablesObject);
-
-    for (let i = 0; i < keys.length; i++) {
-      componentsOrVariablesObject[keys[i]].type = typeString
-    };
-
-    return componentsOrVariablesObject;
-  }
-
   getElementType = logicElementValue => {
+    let elementType = ''
+
     if (logicElementValue.constructor === Array || logicElementValue === '( )') {
-      return 'bracket'
+      elementType = 'bracket'
     } else if (logicElementValue[0] === '@') {
-      return 'component'
+      elementType = 'component'
     } else if (logicElementValue[0] === '#') {
-      return 'variable'
+      elementType = 'variable'
     } else if (['+', '-', '*', '/'].includes(logicElementValue)) {
-      return 'operator'
+      elementType = 'operator'
     } else if (['<', '>', '<=', '>=', '='].includes(logicElementValue)) {
-      return 'comparison'
+      elementType = 'comparison'
     } else {
-      return 'number'
+      elementType = 'number'
     };
+
+    return elementType;
   }
 
   updateDragging = id => {
@@ -183,11 +130,15 @@ class DragAndDropFormula extends Component {
     parentAndIndexOfDragging.parentArray.splice(parentAndIndexOfDragging.index, 1);
 
     const parentAndIndexOfHovering = this.getParentArrayAndIndex(hoverId, logicElements);
-    const hoveringObject = parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index];
+    // ternary statement to account for edge case of outer drop layer
+    const hoveringObject = parentAndIndexOfHovering.index ? parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index] : parentAndIndexOfHovering.parentArray;
 
     let insertIndex = null;
 
-    if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
+    if (dropTargetType === ItemTypes.DROP_LAYER) {
+      insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.length;
+      hoveringObject.splice(insertIndex, 0, draggingObject);
+    } else if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
       insertIndex = leftOrRightOverHoverItem === 'left' ? parentAndIndexOfHovering.index : parentAndIndexOfHovering.index + 1;
       parentAndIndexOfHovering.parentArray.splice(insertIndex, 0, draggingObject);
     } else if (dropTargetType === ItemTypes.BRACKET) {
@@ -204,6 +155,8 @@ class DragAndDropFormula extends Component {
     this.setState({
       logicElements,
       lastDrag
+    }, () => {
+      this.props.updateCurrentFormula(logicElements);
     });
   }
 
@@ -211,7 +164,6 @@ class DragAndDropFormula extends Component {
     const { newId, logicElements } = this.state;
     const hoverId = hoverItem.id;
     const dragId = dragItem.id;
-    const dragIndex = dragItem.index;
 
     // redirect to move function if item has already been added to array
     if (dragId < newId) {
@@ -219,21 +171,25 @@ class DragAndDropFormula extends Component {
       return;
     };
 
-    const newObject = this.constructNewObject(dragItem.templateItemType, dragIndex);
+    const newObject = this.constructNewObject(dragItem.templateItemType, dragItem);
     newObject.id = newId;
 
     const parentAndIndexOfHovering = this.getParentArrayAndIndex(hoverId, logicElements);
-    const hoveringObject = parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index];
+    // ternary statement to account for edge case of outer drop layer
+    const hoveringObject = parentAndIndexOfHovering.index ? parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index] : parentAndIndexOfHovering.parentArray;
 
     let insertIndex = null;
 
-    if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
+    if (dropTargetType === ItemTypes.DROP_LAYER) {
+      insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.length;
+      hoveringObject.splice(insertIndex, 0, newObject);
+    } else if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
       insertIndex = leftOrRightOverHoverItem === 'left' ? parentAndIndexOfHovering.index : parentAndIndexOfHovering.index + 1;
       parentAndIndexOfHovering.parentArray.splice(insertIndex, 0, newObject);
     } else if (dropTargetType === ItemTypes.BRACKET) {
       insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.value.length;
       hoveringObject.value.splice(insertIndex, 0, newObject);
-    }
+    };
 
     const lastDrag = {
       dragId,
@@ -245,26 +201,24 @@ class DragAndDropFormula extends Component {
       logicElements,
       lastDrag,
       newId: this.state.newId + 1
+    }, () => {
+      this.props.updateCurrentFormula(logicElements);
     });
   }
 
-  constructNewObject = (templateItemType, dragIndex) => {
+  constructNewObject = (templateItemType, dragItem) => {
     const { basicTemplateItems } = this.state;
+    const dragIndex = dragItem.index;
+    const dragValue = dragItem.value;
 
-    let newObjectValue = '';
-
-    if (templateItemType === 'basic') {
-      newObjectValue = {
+    const newObjectValue = {
         number: '',
-        operator: basicTemplateItems[dragIndex].value,
-        comparison: basicTemplateItems[dragIndex].value,
+        operator: basicTemplateItems[dragIndex],
+        comparison: basicTemplateItems[dragIndex],
         bracket: [],
-      }[this.getElementType(basicTemplateItems[dragIndex].value)];
-    } else if (templateItemType === 'component') {
-      newObjectValue = '@' + dragIndex;
-    } else if (templateItemType === 'variable') {
-      newObjectValue = '#' + dragIndex;
-    };
+        component: dragValue,
+        variable: dragValue
+      }[this.getElementType(dragValue)];
 
     return {
       value: newObjectValue
@@ -272,6 +226,8 @@ class DragAndDropFormula extends Component {
   }
 
   getParentArrayAndIndex = (logicElementId, array) => {
+    if (logicElementId === 'drop-layer') return {parentArray: array, index: null}
+
     for (let i = 0; i < array.length; i++) {
       if (array[i].id === logicElementId) {
         return {parentArray: array, index: i};
@@ -340,7 +296,8 @@ class DragAndDropFormula extends Component {
     } = this.state
 
     const {
-      changeTab
+      changeTab,
+      saveChanges
     } = this.props
 
     const style = {
@@ -358,8 +315,10 @@ class DragAndDropFormula extends Component {
             newId={newId}
             changeTab={changeTab}
             componentTemplateItems={componentTemplateItems}
+            variableTemplateItems={variableTemplateItems}
             updateDragging={this.updateDragging}
             renderIcon={this.renderIcon}
+            getElementType={this.getElementType}
           />
         </div>
         <div className="col-md-9">
@@ -369,9 +328,10 @@ class DragAndDropFormula extends Component {
                 index={i}
                 key={i}
                 newId={newId}
-                type={this.getElementType(templateItem.value)}
-                value={templateItem.value}
-                templateItemType="basic"
+                type={this.getElementType(templateItem)}
+                value={templateItem}
+                componentTemplateItems={componentTemplateItems}
+                variableTemplateItems={variableTemplateItems}
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
                 canDrag={true}
@@ -384,10 +344,11 @@ class DragAndDropFormula extends Component {
                 index={key}
                 key={i}
                 newId={newId}
-                type={variableTemplateItems[key].type}
+                type={this.getElementType(variableTemplateItems[key].value)}
                 value={variableTemplateItems[key].value}
                 color={variableTemplateItems[key].color}
-                templateItemType="variable"
+                componentTemplateItems={componentTemplateItems}
+                variableTemplateItems={variableTemplateItems}
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
                 canDrag={true}
@@ -395,25 +356,29 @@ class DragAndDropFormula extends Component {
             ))}
           </div>
           <hr />
-          <div style={{ ...style, overflow: 'auto', overflowY: 'hidden' }}>
-            {logicElements.map((card, i) => (
-              <LogicElement
-                key={card.id}
-                id={card.id}
-                type={this.getElementType(card.value)}
-                value={card.value}
-                componentTemplateItems={componentTemplateItems}
-                variableTemplateItems={variableTemplateItems}
-                moveElement={this.moveElement}
-                draggingId={draggingId}
-                updateDragging={this.updateDragging}
-                editingId={editingId}
-                changeNumber={this.changeNumber}
-                renderIcon={this.renderIcon}
-                getElementType={this.getElementType}
-              />
-            ))}
-          </div>
+          <DropLayer moveElement={this.moveElement} id="drop-layer">
+            <div style={{ ...style, overflow: 'auto' }}>
+              {logicElements.map((card, i) => (
+                <LogicElement
+                  key={card.id}
+                  id={card.id}
+                  type={this.getElementType(card.value)}
+                  value={card.value}
+                  componentTemplateItems={componentTemplateItems}
+                  variableTemplateItems={variableTemplateItems}
+                  moveElement={this.moveElement}
+                  draggingId={draggingId}
+                  updateDragging={this.updateDragging}
+                  editingId={editingId}
+                  changeNumber={this.changeNumber}
+                  renderIcon={this.renderIcon}
+                  getElementType={this.getElementType}
+                />
+              ))}
+            </div>
+          </DropLayer>
+          <br />
+          <button className="btn btn-info pull-right" type="button" onClick={() => saveChanges(logicElements)}>Save</button>
         </div>
       </div>
     );
