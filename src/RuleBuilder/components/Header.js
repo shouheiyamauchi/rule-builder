@@ -4,7 +4,7 @@ const Header = props => {
   const header = {
     'newComponent': 'Component',
     'component': 'Component',
-    'ruleSelector': 'Rule Selector',
+    'parentRule': 'Parent Rule',
     'newRule': 'Rule',
     'rule': 'Rule'
   }[props.currentTab.type]

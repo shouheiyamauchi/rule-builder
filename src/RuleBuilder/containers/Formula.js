@@ -4,7 +4,7 @@ const Formula = props => {
   const formTitle = {
     'newComponent': 'Component Builder',
     'component': 'Component Builder',
-    'ruleSelector': 'Rule Selector Builder',
+    'parentRule': 'Parent Rule Builder',
     'newRule': 'Rule Builder',
     'rule': 'Rule Builder'
   }[props.currentTab.type]

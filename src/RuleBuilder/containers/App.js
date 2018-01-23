@@ -14,13 +14,13 @@ class App extends React.Component {
     this.state = {
       componentUpdateKey: 0,
       components: {},
-      ruleSelector: {
+      parentRule: {
         name: '',
         formula: []
       },
       rules: {},
       currentTab: {
-        type: 'ruleSelector',
+        type: 'parentRule',
         name: ''
       },
       currentName: '',
@@ -55,9 +55,9 @@ class App extends React.Component {
           currentName = this.state.components[this.state.currentTab.name].name
           currentFormula = this.state.components[this.state.currentTab.name].formula
           break;
-        case 'ruleSelector':
-          currentName = this.state.ruleSelector.name
-          currentFormula = this.state.ruleSelector.formula
+        case 'parentRule':
+          currentName = this.state.parentRule.name
+          currentFormula = this.state.parentRule.formula
           break;
         case 'newRule':
           currentName = ''
@@ -110,8 +110,8 @@ class App extends React.Component {
           case 'component':
             this.saveComponent();
             break;
-          case 'ruleSelector':
-            this.saveRuleSelector();
+          case 'parentRule':
+            this.saveparentRule();
             break;
           case 'newRule':
             this.saveNewRule();
@@ -157,12 +157,12 @@ class App extends React.Component {
     this.setState({components}, this.changeTab('component', this.state.currentTab.name));
   }
 
-  saveRuleSelector = () => {
-    const ruleSelector = _.cloneDeep(this.state.ruleSelector);
-    ruleSelector.name = this.state.currentName;
-    ruleSelector.formula = this.state.currentFormula;
+  saveparentRule = () => {
+    const parentRule = _.cloneDeep(this.state.parentRule);
+    parentRule.name = this.state.currentName;
+    parentRule.formula = this.state.currentFormula;
 
-    this.setState({ruleSelector}, this.changeTab('ruleSelector', this.state.currentName));
+    this.setState({parentRule}, this.changeTab('parentRule', this.state.currentName));
   }
 
   saveNewRule = () => {
@@ -197,12 +197,12 @@ class App extends React.Component {
   nameValidations = validationObject => {
     validationObject.name = [];
 
-    if (!this.state.currentName) validationObject['name'].push('Name cannot be blank.');
-    // if (this.state.currentName === 'formula') validationObject['name'].push('The name "formula" is reserved and cannot be used.');
+    if (!this.state.currentName) validationObject.name.push('Name cannot be blank.');
+    // if (this.state.currentName === 'formula') validationObject.name.push('The name "formula" is reserved and cannot be used.');
 
     if (this.anyRuleOrComponent() && this.checkDuplicateName()) {
       const ruleOrComponent = (this.anyRule()) ? 'rule' : 'component'
-      validationObject['name'].push('A ' + ruleOrComponent + ' with this name already exists.');
+      validationObject.name.push('A ' + ruleOrComponent + ' with this name already exists.');
     };
   }
 
@@ -212,7 +212,7 @@ class App extends React.Component {
     if (this.state.currentTab.type === ('component')) {
       const dependenciesArray = [];
       this.checkFormulaDependencies(this.state.currentTab.name, this.state.currentFormula, dependenciesArray);
-      if (dependenciesArray.length > 0) validationObject['formula'].push('The current component is used within ' + dependenciesArray.join(', '));
+      if (dependenciesArray.length > 0) validationObject.formula.push('The current component is used within ' + dependenciesArray.join(', '));
     };
   }
 
@@ -234,7 +234,7 @@ class App extends React.Component {
   }
 
   anyRuleOrComponent = () => {
-    return this.state.currentTab.type !== 'ruleSelector';
+    return this.state.currentTab.type !== 'parentRule';
   }
 
   anyRule = () => {
@@ -386,7 +386,7 @@ class App extends React.Component {
             <Header currentTab={this.state.currentTab} />
           </span>
           <span style={{float: 'right'}}>
-            <RulesMenu ruleSelector={this.state.ruleSelector} rules={this.state.rules} changeTab={this.changeTab} />
+            <RulesMenu parentRule={this.state.parentRule} rules={this.state.rules} changeTab={this.changeTab} />
           </span>
           <div style={{clear: 'both'}}></div>
         </div>
