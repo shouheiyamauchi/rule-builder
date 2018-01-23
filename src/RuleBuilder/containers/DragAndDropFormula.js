@@ -15,7 +15,9 @@ class DragAndDropFormula extends Component {
     values: PropTypes.object.isRequired,
     changeTab: PropTypes.func.isRequired,
     saveChanges: PropTypes.func.isRequired,
-    updateCurrentFormula: PropTypes.func.isRequired
+    updateCurrentFormula: PropTypes.func.isRequired,
+    getElementType: PropTypes.func.isRequired,
+    validation: PropTypes.object.isRequired
   }
 
   constructor(props) {
@@ -50,25 +52,6 @@ class DragAndDropFormula extends Component {
       variableTemplateItems: values.variableTemplateItems,
       logicElements: values.logicElements
     });
-  }
-  getElementType = logicElementValue => {
-    let elementType = ''
-
-    if (logicElementValue.constructor === Array || logicElementValue === '( )') {
-      elementType = 'bracket'
-    } else if (logicElementValue[0] === '@') {
-      elementType = 'component'
-    } else if (logicElementValue[0] === '#') {
-      elementType = 'variable'
-    } else if (['+', '-', '*', '/'].includes(logicElementValue)) {
-      elementType = 'operator'
-    } else if (['<', '>', '<=', '>=', '='].includes(logicElementValue)) {
-      elementType = 'comparison'
-    } else {
-      elementType = 'number'
-    };
-
-    return elementType;
   }
 
   updateDragging = id => {
@@ -121,7 +104,7 @@ class DragAndDropFormula extends Component {
     const dragId = dragItem.id;
 
     // cancel if a dragging element is hovering over its own child
-    if (this.getElementType(this.getSingleElement(dragId).value) === 'bracket' && this.hoverIsChildOfDrag(dragId, hoverId, logicElements)) return;
+    if (this.props.getElementType(this.getSingleElement(dragId).value) === 'bracket' && this.hoverIsChildOfDrag(dragId, hoverId, logicElements)) return;
 
     const parentAndIndexOfDragging = this.getParentArrayAndIndex(dragId, logicElements);
     // clone the parent array to prevent mutating original object
@@ -218,7 +201,7 @@ class DragAndDropFormula extends Component {
         bracket: [],
         component: dragValue,
         variable: dragValue
-      }[this.getElementType(dragValue)];
+      }[this.props.getElementType(dragValue)];
 
     return {
       value: newObjectValue
@@ -297,7 +280,9 @@ class DragAndDropFormula extends Component {
 
     const {
       changeTab,
-      saveChanges
+      saveChanges,
+      getElementType,
+      validation
     } = this.props
 
     const style = {
@@ -318,7 +303,7 @@ class DragAndDropFormula extends Component {
             variableTemplateItems={variableTemplateItems}
             updateDragging={this.updateDragging}
             renderIcon={this.renderIcon}
-            getElementType={this.getElementType}
+            getElementType={getElementType}
           />
         </div>
         <div className="col-md-9">
@@ -328,7 +313,7 @@ class DragAndDropFormula extends Component {
                 index={i}
                 key={i}
                 newId={newId}
-                type={this.getElementType(templateItem)}
+                type={getElementType(templateItem)}
                 value={templateItem}
                 componentTemplateItems={componentTemplateItems}
                 variableTemplateItems={variableTemplateItems}
@@ -344,7 +329,7 @@ class DragAndDropFormula extends Component {
                 index={key}
                 key={i}
                 newId={newId}
-                type={this.getElementType(variableTemplateItems[key].value)}
+                type={getElementType(variableTemplateItems[key].value)}
                 value={variableTemplateItems[key].value}
                 color={variableTemplateItems[key].color}
                 componentTemplateItems={componentTemplateItems}
@@ -362,7 +347,7 @@ class DragAndDropFormula extends Component {
                 <LogicElement
                   key={card.id}
                   id={card.id}
-                  type={this.getElementType(card.value)}
+                  type={getElementType(card.value)}
                   value={card.value}
                   componentTemplateItems={componentTemplateItems}
                   variableTemplateItems={variableTemplateItems}
@@ -372,11 +357,14 @@ class DragAndDropFormula extends Component {
                   editingId={editingId}
                   changeNumber={this.changeNumber}
                   renderIcon={this.renderIcon}
-                  getElementType={this.getElementType}
+                  getElementType={getElementType}
                 />
               ))}
             </div>
           </DropLayer>
+          <ul className="parsley-errors-list">
+            {validation.formula.map((error, index) => <li className="parsley-required" key={index}>{error}</li>)}
+          </ul>
           <br />
           <button className="btn btn-info pull-right" type="button" onClick={() => saveChanges(logicElements)}>Save</button>
         </div>

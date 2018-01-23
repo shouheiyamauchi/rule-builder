@@ -90,14 +90,18 @@ class App extends React.Component {
     const logicElements = _.cloneDeep(dragAndDropFormulaLogicElements);
     const currentFormula = this.convertDragAndDropFormulaToArray(logicElements);
 
-    this.setState({currentFormula});
+    this.setState({currentFormula}, () => {
+      const validation = _.cloneDeep(this.state.validation);
+      this.formulaValidations(validation);
+      this.setState({validation})
+    });
   }
 
   saveChanges = (dragAndDropFormulaLogicElements) => {
     const logicElements = _.cloneDeep(dragAndDropFormulaLogicElements);
     const currentFormula = this.convertDragAndDropFormulaToArray(logicElements);
 
-    this.setState({currentFormula, validation: {name: [], formula: []}}, () => {
+    this.setState({currentFormula}, () => {
       if (this.runValidations()) {
         switch (this.state.currentTab.type) {
           case 'newComponent':
@@ -135,17 +139,18 @@ class App extends React.Component {
   }
 
   saveNewComponent = () => {
+    // set unique ID
     let i = 0;
     while (this.state.components['@' + i]) i++;
 
-    const components = this.state.components;
+    const components = _.cloneDeep(this.state.components);
     components['@' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
 
     this.setState({components}, this.changeTab('component', '@' + i));
   }
 
   saveComponent = () => {
-    const components = this.state.components;
+    const components = _.cloneDeep(this.state.components);
     components[this.state.currentTab.name].name = this.state.currentName;
     components[this.state.currentTab.name].formula = this.state.currentFormula;
 
@@ -153,7 +158,7 @@ class App extends React.Component {
   }
 
   saveRuleSelector = () => {
-    const ruleSelector = this.state.ruleSelector;
+    const ruleSelector = _.cloneDeep(this.state.ruleSelector);
     ruleSelector.name = this.state.currentName;
     ruleSelector.formula = this.state.currentFormula;
 
@@ -161,17 +166,18 @@ class App extends React.Component {
   }
 
   saveNewRule = () => {
+    // set unique ID
     let i = 0;
     while (this.state.rules['#' + i]) i++;
 
-    const rules = this.state.rules;
+    const rules = _.cloneDeep(this.state.rules);
     rules['#' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
 
     this.setState({rules}, this.changeTab('rule', '#' + i));
   }
 
   saveRule = () => {
-    const rules = this.state.rules;
+    const rules = _.cloneDeep(this.state.rules);
     rules[this.state.currentTab.name].name = this.state.currentName;
     rules[this.state.currentTab.name].formula = this.state.currentFormula;
 
@@ -179,36 +185,113 @@ class App extends React.Component {
   }
 
   runValidations = () => {
-    const validation = this.state.validation;
+    const validation = _.cloneDeep(this.state.validation);
 
-    if (!this.state.currentName) validation['name'].push('Name cannot be blank.');
-    // if (this.state.currentName === 'formula') validation['name'].push('The name "formula" is reserved and cannot be used.');
-    if (this.state.currentTab.type !== 'ruleSelector' && this.checkDuplicateName()) {
-      const ruleOrComponent = (this.state.currentTab.type === 'rule' || this.state.currentTab.type === 'newRule') ? 'rule' : 'component'
-      validation['name'].push('A ' + ruleOrComponent + ' with this name already exists.');
-    };
+    this.nameValidations(validation);
+    this.formulaValidations(validation);
 
     this.setState({validation});
     return (validation.name.length === 0 && validation.formula.length === 0);
   }
 
+  nameValidations = validationObject => {
+    validationObject.name = [];
+
+    if (!this.state.currentName) validationObject['name'].push('Name cannot be blank.');
+    // if (this.state.currentName === 'formula') validationObject['name'].push('The name "formula" is reserved and cannot be used.');
+
+    if (this.anyRuleOrComponent() && this.checkDuplicateName()) {
+      const ruleOrComponent = (this.anyRule()) ? 'rule' : 'component'
+      validationObject['name'].push('A ' + ruleOrComponent + ' with this name already exists.');
+    };
+  }
+
+  formulaValidations = validationObject => {
+    validationObject.formula = [];
+
+    if (this.state.currentTab.type === ('component')) {
+      const dependenciesArray = [];
+      this.checkFormulaDependencies(this.state.currentTab.name, this.state.currentFormula, dependenciesArray);
+      if (dependenciesArray.length > 0) validationObject['formula'].push('The current component is used within ' + dependenciesArray.join(', '));
+    };
+  }
+
   checkDuplicateName = () => {
-    const componentsOrRulesObject = (this.state.currentTab.type === 'component' || this.state.currentTab.type === 'newComponent') ? this.state.components : this.state.rules;
+    const componentsOrRulesObject = (this.anyComponent()) ? this.state.components : this.state.rules;
 
     let duplicate = false;
-    Object.keys(componentsOrRulesObject).map(key => {
-      if (componentsOrRulesObject[key].name === this.state.currentName) duplicate = true;
-    });
+    const componentsOrRulesObjectKeys = Object.keys(componentsOrRulesObject);
+    for (let i = 0; i < componentsOrRulesObjectKeys.length; i++) {
+      const key = componentsOrRulesObjectKeys[i];
+      if (componentsOrRulesObject[key].name === this.state.currentName) { duplicate = true; break; }
+    }
 
-    if (this.state.currentTab.type === 'newComponent' || this.state.currentTab.type === 'newRule') {
+    if (this.newRuleOrComponent()) {
       return duplicate;
     } else {
       return this.state.currentName !== componentsOrRulesObject[this.state.currentTab.name].name && duplicate;
     };
   }
 
+  anyRuleOrComponent = () => {
+    return this.state.currentTab.type !== 'ruleSelector';
+  }
+
+  anyRule = () => {
+    return this.state.currentTab.type === 'rule' || this.state.currentTab.type === 'newRule';
+  }
+
+  anyComponent = () => {
+    return this.state.currentTab.type === 'component' || this.state.currentTab.type === 'newComponent';
+  }
+
+  newRuleOrComponent = () => {
+    return this.state.currentTab.type === 'newRule' || this.state.currentTab.type === 'newComponent';
+  }
+
+  existingRuleOrComponent = () => {
+    return this.state.currentTab.type === 'rule' || this.state.currentTab.type === 'component';
+  }
+
+  // ensure a component does not bring in another component which
+  // the definition relies on itself resulting in an infinity loop
+  checkFormulaDependencies = (currentComponent, formula, dependenciesArray) => {
+    for (let i = 0; i < formula.length; i++) {
+      if (this.getElementType(formula[i]) === 'bracket') {
+        this.checkFormulaDependencies(currentComponent, formula, dependenciesArray)
+      };
+
+      const dependencyItem = this.getDependencyItem(currentComponent, formula[i])
+      if (dependencyItem) dependenciesArray.push(dependencyItem);
+    };
+
+    return dependenciesArray;
+  }
+
+  getDependencyItem = (currentComponent, formulaOrItem) => {
+    if (formulaOrItem.constructor === Array) {
+      for (let i = 0; i < formulaOrItem.length; i++) {
+        if (this.getElementType(formulaOrItem[i]) === 'component') {
+          const nestedDependencyCheck = this.getDependencyItem(currentComponent, this.state.components[formulaOrItem[i]].formula);
+          if (nestedDependencyCheck) return formulaOrItem[i];
+        };
+
+        if (formulaOrItem[i] === currentComponent) return formulaOrItem[i];
+      };
+
+      return false
+    } else {
+      if (this.getElementType(formulaOrItem) === 'component') {
+        const nestedDependencyCheck = this.getDependencyItem(currentComponent, this.state.components[formulaOrItem].formula);
+        if (nestedDependencyCheck) return formulaOrItem;
+      };
+
+      if (formulaOrItem === currentComponent) return formulaOrItem;
+    }
+  }
+
   generateDragAndDropFormulaObject = () => {
-    const logicElementsAndId = this.assignIdAndTypetoLogicElements(this.state.currentFormula, 0);
+    const logicElementsAndId = this.assignIdAndTypetoLogicElements(_.cloneDeep(this.state.currentFormula), 0);
     const startingId = logicElementsAndId.currentId;
     const logicElements = logicElementsAndId.logicElementsArray;
     const componentTemplateItems = this.convertComponentTemplateItems();
@@ -275,6 +358,26 @@ class App extends React.Component {
     return componentTemplateItems;
   }
 
+  getElementType = logicElementValue => {
+    let elementType = ''
+
+    if (logicElementValue.constructor === Array || logicElementValue === '( )') {
+      elementType = 'bracket'
+    } else if (logicElementValue[0] === '@') {
+      elementType = 'component'
+    } else if (logicElementValue[0] === '#') {
+      elementType = 'variable'
+    } else if (['+', '-', '*', '/'].includes(logicElementValue)) {
+      elementType = 'operator'
+    } else if (['<', '>', '<=', '>=', '='].includes(logicElementValue)) {
+      elementType = 'comparison'
+    } else {
+      elementType = 'number'
+    };
+
+    return elementType;
+  }
+
   render () {
     return (
       <div className="row">
@@ -304,6 +407,8 @@ class App extends React.Component {
             changeTab={this.changeTab}
             updateCurrentFormula={this.updateCurrentFormula}
             saveChanges={this.saveChanges}
+            getElementType={this.getElementType}
+            validation={this.state.validation}
           />
         </div>
       </div>
