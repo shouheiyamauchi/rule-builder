@@ -34,8 +34,9 @@ class TemplateItem extends Component {
 		type: PropTypes.string.isRequired,
 		value: PropTypes.string.isRequired,
 		color: PropTypes.string,
-		componentTemplateItems: PropTypes.object.isRequired,
-		variableTemplateItems: PropTypes.object.isRequired,
+		componentTemplateItems: PropTypes.object,
+		ruleTemplateItems: PropTypes.object,
+		variableTemplateItems: PropTypes.object,
 		renderIcon: PropTypes.func.isRequired,
 		canDrag: PropTypes.bool.isRequired,
 		onClick: PropTypes.func
@@ -47,6 +48,7 @@ class TemplateItem extends Component {
 			value,
 			color,
 			componentTemplateItems,
+			ruleTemplateItems,
 			variableTemplateItems,
 			renderIcon,
 			canDrag,
@@ -61,6 +63,8 @@ class TemplateItem extends Component {
 
 		if (type === 'component') {
 			return <div onClick={onClick} style={{ ...style }}>{componentTemplateItems[value].title}</div>
+		} else if (type === 'rule') {
+			return <div style={{ ...style }}>{ruleTemplateItems[value].title}</div>
 		} else if (type === 'variable') {
 			return <div style={{ ...style }}>{variableTemplateItems[value].title}</div>
 		} else {

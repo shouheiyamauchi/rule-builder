@@ -170,12 +170,12 @@ class App extends React.Component {
   saveNewRule = () => {
     // set unique ID
     let i = 0;
-    while (this.state.rules['#' + i]) i++;
+    while (this.state.rules['~' + i]) i++;
 
     const rules = _.cloneDeep(this.state.rules);
-    rules['#' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
+    rules['~' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
 
-    this.setState({rules}, this.changeTab('rule', '#' + i));
+    this.setState({rules}, this.changeTab('rule', '~' + i));
   }
 
   saveRule = () => {
@@ -202,36 +202,41 @@ class App extends React.Component {
     if (!this.state.currentName) validationObject.name.push('Name cannot be blank.');
     // if (this.state.currentName === 'formula') validationObject.name.push('The name "formula" is reserved and cannot be used.');
 
-    if (this.anyRuleOrComponent() && this.checkDuplicateName()) {
-      const ruleOrComponent = (this.anyRule()) ? 'rule' : 'component'
-      validationObject.name.push('A ' + ruleOrComponent + ' with this name already exists.');
+    if (this.anyRuleOrComponent()) {
+      if (this.checkDuplicateName('components')) validationObject.name.push('A component with this name already exists.');
+      if (this.checkDuplicateName('rules')) validationObject.name.push('A rule with this name already exists.');
     };
   }
 
   formulaValidations = validationObject => {
     validationObject.formula = [];
 
-    if (this.state.currentTab.type === ('component')) {
+    if (this.existingRuleOrComponent()) {
       const dependenciesArray = [];
       this.checkFormulaDependencies(this.state.currentTab.value, this.state.currentFormula, dependenciesArray);
-      if (dependenciesArray.length > 0) validationObject.formula.push('The current component is used within ' + dependenciesArray.join(', '));
+      const dependenciesArrayToName = dependenciesArray.map(dependency => {
+        return (this.getElementType(dependency) === 'component' ? this.state.components[dependency].name : this.state.rules[dependency].name)
+      });
+
+      if (dependenciesArrayToName.length > 0) validationObject.formula.push('The current ' + this.state.currentTab.type + ' is used within ' + dependenciesArrayToName.join(', '));
     };
   }
 
-  checkDuplicateName = () => {
-    const componentsOrRulesObject = (this.anyComponent()) ? this.state.components : this.state.rules;
+  checkDuplicateName = (componentsOrRules) => {
+    const componentsOrRulesObject = componentsOrRules === 'components' ? this.state.components : this.state.rules;
 
     let duplicate = false;
     const componentsOrRulesObjectKeys = Object.keys(componentsOrRulesObject);
     for (let i = 0; i < componentsOrRulesObjectKeys.length; i++) {
       const key = componentsOrRulesObjectKeys[i];
-      if (componentsOrRulesObject[key].name === this.state.currentName) { duplicate = true; break; }
-    }
+      if (componentsOrRulesObject[key].name === this.state.currentName) { duplicate = true; break; };
+    };
 
     if (this.newRuleOrComponent()) {
       return duplicate;
     } else {
-      return this.state.currentName !== componentsOrRulesObject[this.state.currentTab.value].name && duplicate;
+      const currentObjectName = (this.state.currentTab.type === 'component' ? this.state.components : this.state.rules)[this.state.currentTab.value].name;
+      return this.state.currentName !== currentObjectName && duplicate;
     };
   }
 
@@ -257,12 +262,12 @@ class App extends React.Component {
 
   // ensure a component does not bring in another component which
   // the definition relies on itself resulting in an infinity loop
-  checkFormulaDependencies = (currentComponent, formula, dependenciesArray) => {
+  checkFormulaDependencies = (currentItem, formula, dependenciesArray) => {
     for (let i = 0; i < formula.length; i++) {
       if (this.getElementType(formula[i]) === 'bracket') {
-        this.checkFormulaDependencies(currentComponent, formula[i], dependenciesArray)
+        this.checkFormulaDependencies(currentItem, formula[i], dependenciesArray)
       } else {
-        const dependencyItem = this.getDependencyItem(currentComponent, formula[i])
+        const dependencyItem = this.getDependencyItem(currentItem, formula[i])
         if (dependencyItem) dependenciesArray.push(dependencyItem);
       };
     };
@@ -270,26 +275,34 @@ class App extends React.Component {
     return dependenciesArray;
   }
 
-  getDependencyItem = (currentComponent, formulaOrItem) => {
+  getDependencyItem = (currentItem, formulaOrItem) => {
     if (formulaOrItem.constructor === Array) {
       for (let i = 0; i < formulaOrItem.length; i++) {
-        if (this.getElementType(formulaOrItem[i]) === 'component') {
-          const nestedDependencyCheck = this.getDependencyItem(currentComponent, this.state.components[formulaOrItem[i]].formula);
+        const elementType = this.getElementType(formulaOrItem[i]);
+
+        if (elementType === 'component' || elementType === 'rule') {
+          const componentOrRule = elementType === 'component' ? this.state.components[formulaOrItem[i]] : this.state.rules[formulaOrItem[i]];
+          const nestedDependencyCheck = this.getDependencyItem(currentItem, componentOrRule.formula);
+
           if (nestedDependencyCheck) return formulaOrItem[i];
         };
 
-        if (formulaOrItem[i] === currentComponent) return formulaOrItem[i];
+        if (formulaOrItem[i] === currentItem) return formulaOrItem[i];
       };
 
-      return false
+      return false;
     } else {
-      if (this.getElementType(formulaOrItem) === 'component') {
-        const nestedDependencyCheck = this.getDependencyItem(currentComponent, this.state.components[formulaOrItem].formula);
+      const elementType = this.getElementType(formulaOrItem);
+
+      if (elementType === 'component' || elementType === 'rule') {
+        const componentOrRule = elementType === 'component' ? this.state.components[formulaOrItem] : this.state.rules[formulaOrItem];
+        const nestedDependencyCheck = this.getDependencyItem(currentItem, componentOrRule.formula);
+
         if (nestedDependencyCheck) return formulaOrItem;
       };
 
-      if (formulaOrItem === currentComponent) return formulaOrItem;
-    }
+      if (formulaOrItem === currentItem) return formulaOrItem;
+    };
   }
 
   generateDragAndDropFormulaObject = () => {
@@ -297,11 +310,13 @@ class App extends React.Component {
     const startingId = logicElementsAndId.currentId;
     const logicElements = logicElementsAndId.logicElementsArray;
     const componentTemplateItems = this.convertComponentTemplateItems();
+    const ruleTemplateItems = this.convertRuleTemplateItems();
 
     return {
       startingId,
       logicElements,
       componentTemplateItems,
+      ruleTemplateItems,
       variableTemplateItems: {
         '#1': {
           value: '#1',
@@ -362,6 +377,21 @@ class App extends React.Component {
     return componentTemplateItems;
   }
 
+  convertRuleTemplateItems = () => {
+    const ruleTemplateItems = {};
+
+    Object.keys(this.state.rules).map(key => {
+      ruleTemplateItems[key] = {
+        value: key,
+        title: this.state.rules[key].name,
+        color: 'black',
+        canDrag: true
+      };
+    });
+
+    return ruleTemplateItems;
+  }
+
   getElementType = logicElementValue => {
     let elementType = ''
 
@@ -371,6 +401,8 @@ class App extends React.Component {
       elementType = 'component'
     } else if (logicElementValue[0] === '#') {
       elementType = 'variable'
+    } else if (logicElementValue[0] === '~') {
+      elementType = 'rule'
     } else if (['+', '-', '*', '/'].indexOf(logicElementValue) !== -1) {
       elementType = 'operator'
     } else if (['<', '>', '<=', '>=', '='].indexOf(logicElementValue) !== -1) {

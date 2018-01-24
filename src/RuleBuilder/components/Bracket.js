@@ -52,6 +52,7 @@ class Bracket extends Component {
   		id,
 			logicElements,
       componentTemplateItems,
+			ruleTemplateItems,
       variableTemplateItems,
       moveElement,
       editingId,
@@ -84,6 +85,7 @@ class Bracket extends Component {
                     type={getElementType(card.value)}
 										color={card.color}
 										componentTemplateItems={componentTemplateItems}
+			              ruleTemplateItems={ruleTemplateItems}
 			              variableTemplateItems={variableTemplateItems}
                     moveElement={moveElement}
                     draggingId={draggingId}

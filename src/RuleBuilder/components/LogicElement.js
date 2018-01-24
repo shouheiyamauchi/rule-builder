@@ -42,6 +42,7 @@ class LogicElement extends Component {
 			PropTypes.array
 		]).isRequired,
 		componentTemplateItems: PropTypes.object.isRequired,
+		ruleTemplateItems: PropTypes.object.isRequired,
 		variableTemplateItems: PropTypes.object.isRequired,
 		moveElement: PropTypes.func.isRequired,
 		editingId: PropTypes.number,
@@ -60,6 +61,7 @@ class LogicElement extends Component {
 			type,
 			value,
       componentTemplateItems,
+			ruleTemplateItems,
       variableTemplateItems,
 			moveElement,
 			editingId,
@@ -89,6 +91,15 @@ class LogicElement extends Component {
 					</div>
 				</div>
 			);
+		} else if (type === 'rule') {
+			style.backgroundColor = ruleTemplateItems[value].color
+			return (
+				<div style={{ opacity }} id={'rule-builder-id-' + id}>
+					<div style={style}>
+						{ruleTemplateItems[value].title}
+					</div>
+				</div>
+			);
 		} else if (type === 'variable') {
 			style.backgroundColor = variableTemplateItems[value].color
 			return (
@@ -113,6 +124,7 @@ class LogicElement extends Component {
 						id={id}
 						logicElements={value}
 						componentTemplateItems={componentTemplateItems}
+						ruleTemplateItems={ruleTemplateItems}
 						variableTemplateItems={variableTemplateItems}
 						moveElement={moveElement}
 						draggingId={draggingId}

@@ -34,6 +34,7 @@ class DragAndDropFormula extends Component {
       },
       basicTemplateItems: ['+', '-', '*', '/', '<', '>', '<=', '>=', '=', 'Number', '( )', 'IF', 'ELSIF', 'ELSE'],
       componentTemplateItems: {},
+      ruleTemplateItems: {},
       variableTemplateItems: {},
       logicElements: []
     }
@@ -49,6 +50,7 @@ class DragAndDropFormula extends Component {
     this.setState({
       newId: values.startingId,
       componentTemplateItems: values.componentTemplateItems,
+      ruleTemplateItems: values.ruleTemplateItems,
       variableTemplateItems: values.variableTemplateItems,
       logicElements: values.logicElements
     });
@@ -200,6 +202,7 @@ class DragAndDropFormula extends Component {
         comparison: basicTemplateItems[dragIndex],
         bracket: [],
         component: dragValue,
+        rule: dragValue,
         variable: dragValue,
         ifelse: basicTemplateItems[dragIndex]
       }[this.props.getElementType(dragValue)];
@@ -276,6 +279,7 @@ class DragAndDropFormula extends Component {
       basicTemplateItems,
       logicElements,
       componentTemplateItems,
+      ruleTemplateItems,
       variableTemplateItems,
       newId,
       draggingId,
@@ -284,6 +288,7 @@ class DragAndDropFormula extends Component {
 
     const {
       changeTab,
+      currentTab,
       saveChanges,
       getElementType,
       validation
@@ -304,13 +309,13 @@ class DragAndDropFormula extends Component {
             newId={newId}
             changeTab={changeTab}
             componentTemplateItems={componentTemplateItems}
-            variableTemplateItems={variableTemplateItems}
             updateDragging={this.updateDragging}
             renderIcon={this.renderIcon}
             getElementType={getElementType}
           />
         </div>
         <div className="col-md-9">
+          <h4>Operators</h4>
           <div style={style}>
             {basicTemplateItems.map((templateItem, i) => (
               <TemplateItem
@@ -319,14 +324,30 @@ class DragAndDropFormula extends Component {
                 newId={newId}
                 type={getElementType(templateItem)}
                 value={templateItem}
-                componentTemplateItems={componentTemplateItems}
-                variableTemplateItems={variableTemplateItems}
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
                 canDrag={true}
               />
             ))}
           </div>
+          {Object.keys(ruleTemplateItems).length > 0 ? <h4>Rules</h4> : null}
+          <div style={style}>
+            {Object.keys(ruleTemplateItems).map((key, i) => (
+              <TemplateItem
+                index={key}
+                key={i}
+                newId={newId}
+                type={getElementType(ruleTemplateItems[key].value)}
+                value={ruleTemplateItems[key].value}
+                color={ruleTemplateItems[key].color}
+                ruleTemplateItems={ruleTemplateItems}
+                updateDragging={this.updateDragging}
+                renderIcon={this.renderIcon}
+                canDrag={(currentTab.type === 'parentRule' || currentTab.type === 'newRule' || currentTab.type === 'rule')}
+              />
+            ))}
+          </div>
+          {Object.keys(variableTemplateItems).length > 0 ? <h4>Variables</h4> : null}
           <div style={style}>
             {Object.keys(variableTemplateItems).map((key, i) => (
               <TemplateItem
@@ -336,7 +357,6 @@ class DragAndDropFormula extends Component {
                 type={getElementType(variableTemplateItems[key].value)}
                 value={variableTemplateItems[key].value}
                 color={variableTemplateItems[key].color}
-                componentTemplateItems={componentTemplateItems}
                 variableTemplateItems={variableTemplateItems}
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
@@ -355,6 +375,7 @@ class DragAndDropFormula extends Component {
                   value={card.value}
                   componentTemplateItems={componentTemplateItems}
                   variableTemplateItems={variableTemplateItems}
+                  ruleTemplateItems={ruleTemplateItems}
                   moveElement={this.moveElement}
                   draggingId={draggingId}
                   updateDragging={this.updateDragging}
