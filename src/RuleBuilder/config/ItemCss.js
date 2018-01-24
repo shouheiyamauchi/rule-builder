@@ -31,6 +31,7 @@ module.exports = {
     number: '#005F7F',
     operator: '#6ddba8',
     comparison: '#82aae5',
-    bracket: 'grey'
+    bracket: 'grey',
+    ifelse: 'orange'
   }
 };

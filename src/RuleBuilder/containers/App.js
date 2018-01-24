@@ -21,7 +21,7 @@ class App extends React.Component {
       rules: {},
       currentTab: {
         type: 'parentRule',
-        name: ''
+        value: ''
       },
       currentName: '',
       currentFormula: [],
@@ -32,10 +32,10 @@ class App extends React.Component {
     };
   }
 
-  changeTab = (tabType, tabName) => {
+  changeTab = (tabType, tabValue) => {
     this.setState({currentTab: {
       type: tabType,
-      name: tabName
+      value: tabValue
     }}, () => {
       this.setCurrentNameFormula();
     });
@@ -52,8 +52,8 @@ class App extends React.Component {
           currentFormula = []
           break;
         case 'component':
-          currentName = this.state.components[this.state.currentTab.name].name
-          currentFormula = this.state.components[this.state.currentTab.name].formula
+          currentName = this.state.components[this.state.currentTab.value].name
+          currentFormula = this.state.components[this.state.currentTab.value].formula
           break;
         case 'parentRule':
           currentName = this.state.parentRule.name
@@ -64,8 +64,8 @@ class App extends React.Component {
           currentFormula = []
           break;
         case 'rule':
-          currentName = this.state.rules[this.state.currentTab.name].name
-          currentFormula = this.state.rules[this.state.currentTab.name].formula
+          currentName = this.state.rules[this.state.currentTab.value].name
+          currentFormula = this.state.rules[this.state.currentTab.value].formula
           break;
         default:
           break;
@@ -151,10 +151,10 @@ class App extends React.Component {
 
   saveComponent = () => {
     const components = _.cloneDeep(this.state.components);
-    components[this.state.currentTab.name].name = this.state.currentName;
-    components[this.state.currentTab.name].formula = this.state.currentFormula;
+    components[this.state.currentTab.value].name = this.state.currentName;
+    components[this.state.currentTab.value].formula = this.state.currentFormula;
 
-    this.setState({components}, this.changeTab('component', this.state.currentTab.name));
+    this.setState({components}, this.changeTab('component', this.state.currentTab.value));
   }
 
   saveparentRule = () => {
@@ -162,7 +162,7 @@ class App extends React.Component {
     parentRule.name = this.state.currentName;
     parentRule.formula = this.state.currentFormula;
 
-    this.setState({parentRule}, this.changeTab('parentRule', this.state.currentName));
+    this.setState({parentRule}, this.changeTab('parentRule', ''));
   }
 
   saveNewRule = () => {
@@ -178,10 +178,10 @@ class App extends React.Component {
 
   saveRule = () => {
     const rules = _.cloneDeep(this.state.rules);
-    rules[this.state.currentTab.name].name = this.state.currentName;
-    rules[this.state.currentTab.name].formula = this.state.currentFormula;
+    rules[this.state.currentTab.value].name = this.state.currentName;
+    rules[this.state.currentTab.value].formula = this.state.currentFormula;
 
-    this.setState({rules}, this.changeTab('rule', this.state.currentTab.name));
+    this.setState({rules}, this.changeTab('rule', this.state.currentTab.value));
   }
 
   runValidations = () => {
@@ -211,7 +211,7 @@ class App extends React.Component {
 
     if (this.state.currentTab.type === ('component')) {
       const dependenciesArray = [];
-      this.checkFormulaDependencies(this.state.currentTab.name, this.state.currentFormula, dependenciesArray);
+      this.checkFormulaDependencies(this.state.currentTab.value, this.state.currentFormula, dependenciesArray);
       if (dependenciesArray.length > 0) validationObject.formula.push('The current component is used within ' + dependenciesArray.join(', '));
     };
   }
@@ -229,7 +229,7 @@ class App extends React.Component {
     if (this.newRuleOrComponent()) {
       return duplicate;
     } else {
-      return this.state.currentName !== componentsOrRulesObject[this.state.currentTab.name].name && duplicate;
+      return this.state.currentName !== componentsOrRulesObject[this.state.currentTab.value].name && duplicate;
     };
   }
 
@@ -371,6 +371,8 @@ class App extends React.Component {
       elementType = 'operator'
     } else if (['<', '>', '<=', '>=', '='].includes(logicElementValue)) {
       elementType = 'comparison'
+    } else if (['IF', 'ELSIF', 'ELSE'].includes(logicElementValue)) {
+      elementType = 'ifelse'
     } else {
       elementType = 'number'
     };

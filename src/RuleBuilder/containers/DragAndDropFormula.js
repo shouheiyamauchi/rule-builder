@@ -32,7 +32,7 @@ class DragAndDropFormula extends Component {
         hoverId: '',
         leftOrRightOverHoverItem: ''
       },
-      basicTemplateItems: ['+', '-', '*', '/', '<', '>', '<=', '>=', '=', 'Number', '( )'],
+      basicTemplateItems: ['+', '-', '*', '/', '<', '>', '<=', '>=', '=', 'Number', '( )', 'IF', 'ELSIF', 'ELSE'],
       componentTemplateItems: {},
       variableTemplateItems: {},
       logicElements: []
@@ -99,7 +99,7 @@ class DragAndDropFormula extends Component {
   }
 
   moveLogicElement = (hoverItem, dragItem, dropTargetType, leftOrRightOverHoverItem) => {
-    const { logicElements } = this.state;
+    const logicElements = _.cloneDeep(this.state.logicElements);
     const hoverId = hoverItem.id;
     const dragId = dragItem.id;
 
@@ -144,7 +144,8 @@ class DragAndDropFormula extends Component {
   }
 
   addAndDragItem = (hoverItem, dragItem, dropTargetType, leftOrRightOverHoverItem) => {
-    const { newId, logicElements } = this.state;
+    const { newId } = this.state;
+    const logicElements = _.cloneDeep(this.state.logicElements);
     const hoverId = hoverItem.id;
     const dragId = dragItem.id;
 
@@ -183,7 +184,7 @@ class DragAndDropFormula extends Component {
     this.setState({
       logicElements,
       lastDrag,
-      newId: this.state.newId + 1
+      newId: newId + 1
     }, () => {
       this.props.updateCurrentFormula(logicElements);
     });
@@ -200,7 +201,8 @@ class DragAndDropFormula extends Component {
         comparison: basicTemplateItems[dragIndex],
         bracket: [],
         component: dragValue,
-        variable: dragValue
+        variable: dragValue,
+        ifelse: basicTemplateItems[dragIndex]
       }[this.props.getElementType(dragValue)];
 
     return {
