@@ -127,15 +127,17 @@ class App extends React.Component {
   }
 
   convertDragAndDropFormulaToArray = (dragAndDropFormulaLogicElements) => {
-    for (let i = 0; i < dragAndDropFormulaLogicElements.length; i++) {
-      dragAndDropFormulaLogicElements[i] = dragAndDropFormulaLogicElements[i].value;
+    const newDragAndDropFormulaLogicElements = [];
 
-      if (dragAndDropFormulaLogicElements[i].constructor === Array) {
-        this.convertDragAndDropFormulaToArray(dragAndDropFormulaLogicElements[i]);
+    for (let i = 0; i < dragAndDropFormulaLogicElements.length; i++) {
+      newDragAndDropFormulaLogicElements.push(dragAndDropFormulaLogicElements[i].value);
+
+      if (newDragAndDropFormulaLogicElements[i].constructor === Array) {
+        newDragAndDropFormulaLogicElements[i] = this.convertDragAndDropFormulaToArray(newDragAndDropFormulaLogicElements[i]);
       };
     };
 
-    return dragAndDropFormulaLogicElements;
+    return newDragAndDropFormulaLogicElements;
   }
 
   saveNewComponent = () => {
@@ -333,7 +335,9 @@ class App extends React.Component {
       currentId++;
 
       if (logicElementValue.constructor === Array) {
-        currentId = this.assignIdAndTypetoLogicElements(updatedLogicElements[i].value, currentId).currentId;
+        const updatedLogicElementsArrayAndCurrentId = this.assignIdAndTypetoLogicElements(updatedLogicElements[i].value, currentId)
+        currentId = updatedLogicElementsArrayAndCurrentId.currentId;
+        updatedLogicElements[i].value = updatedLogicElementsArrayAndCurrentId.logicElementsArray;
       };
     };
 
@@ -367,11 +371,11 @@ class App extends React.Component {
       elementType = 'component'
     } else if (logicElementValue[0] === '#') {
       elementType = 'variable'
-    } else if (['+', '-', '*', '/'].includes(logicElementValue)) {
+    } else if (['+', '-', '*', '/'].indexOf(logicElementValue) !== -1) {
       elementType = 'operator'
-    } else if (['<', '>', '<=', '>=', '='].includes(logicElementValue)) {
+    } else if (['<', '>', '<=', '>=', '='].indexOf(logicElementValue) !== -1) {
       elementType = 'comparison'
-    } else if (['IF', 'ELSIF', 'ELSE'].includes(logicElementValue)) {
+    } else if (['IF', 'ELSIF', 'ELSE'].indexOf(logicElementValue) !== -1) {
       elementType = 'ifelse'
     } else {
       elementType = 'number'

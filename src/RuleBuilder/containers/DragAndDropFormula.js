@@ -59,6 +59,7 @@ class DragAndDropFormula extends Component {
   }
 
   moveElement = (props, monitor, dropTargetType) => {
+    // console.log(dropTargetType)
     const dragItem = monitor.getItem();
     const dragId = dragItem.id;
 
@@ -104,30 +105,28 @@ class DragAndDropFormula extends Component {
     const dragId = dragItem.id;
 
     // cancel if a dragging element is hovering over its own child
-    if (this.props.getElementType(this.getSingleElement(dragId).value) === 'bracket' && this.hoverIsChildOfDrag(dragId, hoverId, logicElements)) return;
+    if (this.props.getElementType(this.getSingleElement(dragId).value) === 'bracket' && this.hoverIsChildOfDrag(dragId, hoverId, logicElements) && hoverId !== 'drop-layer') return;
 
     const parentAndIndexOfDragging = this.getParentArrayAndIndex(dragId, logicElements);
-    // clone the parent array to prevent mutating original object
     const draggingObject = _.cloneDeep(parentAndIndexOfDragging.parentArray[parentAndIndexOfDragging.index]);
 
     parentAndIndexOfDragging.parentArray.splice(parentAndIndexOfDragging.index, 1);
-
-    const parentAndIndexOfHovering = this.getParentArrayAndIndex(hoverId, logicElements);
-    // ternary statement to account for edge case of outer drop layer
-    const hoveringObject = parentAndIndexOfHovering.index ? parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index] : parentAndIndexOfHovering.parentArray;
-
-    let insertIndex = null;
-
     if (dropTargetType === ItemTypes.DROP_LAYER) {
-      insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.length;
-      hoveringObject.splice(insertIndex, 0, draggingObject);
-    } else if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
-      insertIndex = leftOrRightOverHoverItem === 'left' ? parentAndIndexOfHovering.index : parentAndIndexOfHovering.index + 1;
-      parentAndIndexOfHovering.parentArray.splice(insertIndex, 0, draggingObject);
-    } else if (dropTargetType === ItemTypes.BRACKET) {
-      insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.value.length;
-      hoveringObject.value.splice(insertIndex, 0, draggingObject);
-    };
+      const insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : logicElements.length;
+      logicElements.splice(insertIndex, 0, draggingObject);
+    } else {
+      const parentAndIndexOfHovering = this.getParentArrayAndIndex(hoverId, logicElements);
+      const hoveringObject = parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index];
+      let insertIndex = null;
+
+      if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
+        insertIndex = leftOrRightOverHoverItem === 'left' ? parentAndIndexOfHovering.index : parentAndIndexOfHovering.index + 1;
+        parentAndIndexOfHovering.parentArray.splice(insertIndex, 0, draggingObject);
+      } else if (dropTargetType === ItemTypes.BRACKET) {
+        insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.value.length;
+        hoveringObject.value.splice(insertIndex, 0, draggingObject);
+      };
+    }
 
     const lastDrag = {
       dragId,
@@ -264,6 +263,9 @@ class DragAndDropFormula extends Component {
 	    '<=': <div><Typicons.TiChevronLeft style={{marginRight: '-3px'}} /><Typicons.TiEquals /></div>,
 	    '>=': <div><Typicons.TiChevronRight style={{marginRight: '-3px'}} /><Typicons.TiEquals /></div>,
 	    '=': <div><Typicons.TiEquals /></div>,
+      'IF': 'IF',
+      'ELSIF': 'ELSE IF',
+      'ELSE': 'ELSE'
 	  };
 
 		return icons[value] ? icons[value] : value;
