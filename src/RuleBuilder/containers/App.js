@@ -260,11 +260,11 @@ class App extends React.Component {
   checkFormulaDependencies = (currentComponent, formula, dependenciesArray) => {
     for (let i = 0; i < formula.length; i++) {
       if (this.getElementType(formula[i]) === 'bracket') {
-        this.checkFormulaDependencies(currentComponent, formula, dependenciesArray)
+        this.checkFormulaDependencies(currentComponent, formula[i], dependenciesArray)
+      } else {
+        const dependencyItem = this.getDependencyItem(currentComponent, formula[i])
+        if (dependencyItem) dependenciesArray.push(dependencyItem);
       };
-
-      const dependencyItem = this.getDependencyItem(currentComponent, formula[i])
-      if (dependencyItem) dependenciesArray.push(dependencyItem);
     };
 
     return dependenciesArray;
