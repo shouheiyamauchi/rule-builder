@@ -5,7 +5,6 @@ import $ from 'jquery';
 import * as Typicons from 'react-icons/lib/ti'
 import ItemTypes from '../config/ItemTypes';
 import DropLayer from './DropLayer'
-import Components from './Components'
 import TemplateItem from '../components/TemplateItem';
 import LogicElement from '../components/LogicElement';
 

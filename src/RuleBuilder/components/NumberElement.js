@@ -1,7 +1,17 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ItemCss from '../config/ItemCss'
 
 class NumberElement extends Component {
+  static propTypes = {
+    id: PropTypes.number.isRequired,
+    value: PropTypes.string.isRequired,
+    opacity: PropTypes.number.isRequired,
+    style: PropTypes.object.isRequired,
+    editingId: PropTypes.number,
+    changeNumber: PropTypes.func.isRequired
+  }
+
   constructor(props) {
     super(props);
 
@@ -20,32 +30,49 @@ class NumberElement extends Component {
   }
 
   render() {
-    if (this.props.editingId === this.props.id) {
+    const {
+      id,
+      value,
+      opacity,
+      style,
+      editingId,
+      changeNumber
+    } = this.props
+
+    if (editingId === id) {
       return (
-        <div>
-          <input
-            value={this.state.value}
-            size={this.state.value.length > 1 ? this.state.value.length : 2}
-            onChange={this.handleChange}
-            style={{backgroundColor: ItemCss.backgroundColor.number}}
-          />
-          <br />
-          <div className="text-right">
-            <span
-              className="glyphicon glyphicon-remove"
-              aria-hidden="true"
-              onClick={() => {this.props.changeNumber(null);}}
+        <div style={{ opacity }} id={'rule-builder-id-' + id}>
+					<div style={style}>
+            <input
+              value={this.state.value}
+              size={this.state.value.length > 1 ? this.state.value.length : 2}
+              onChange={this.handleChange}
+              style={{backgroundColor: ItemCss.backgroundColor.number}}
             />
-            <span
-              className="glyphicon glyphicon-ok"
-              aria-hidden="true"
-              onClick={() => this.props.changeNumber(this.props.id, this.state.value)}
-            />
+            <br />
+            <div className="text-right">
+              <span
+                className="glyphicon glyphicon-remove"
+                aria-hidden="true"
+                onClick={() => changeNumber(null)}
+              />
+              <span
+                className="glyphicon glyphicon-ok"
+                aria-hidden="true"
+                onClick={() => changeNumber(id, this.state.value)}
+              />
+            </div>
+					</div>
+				</div>
+      );
+    } else {
+      return (
+        <div style={{ opacity }} id={'rule-builder-id-' + id}>
+					<div style={style}>
+            <span onClick={() => changeNumber(id)}>{value ? value : 'Click to Enter Value'}</span>
           </div>
         </div>
       );
-    } else {
-      return <span onClick={() => this.props.changeNumber(this.props.id)}>{this.props.value ? this.props.value : 'Click to Enter Value'}</span>
     }
   }
 }

@@ -6,7 +6,9 @@ import { DragSource, DropTarget } from 'react-dnd';
 import ItemTypes from '../config/ItemTypes';
 import ItemCss from '../config/ItemCss';
 import Bracket from './Bracket';
+import BasicElement from './BasicElement';
 import NumberElement from './NumberElement';
+import TemplateElement from './TemplateElement';
 
 const logicElementSource = {
 	beginDrag(props) {
@@ -55,6 +57,17 @@ class LogicElement extends Component {
 		removeElement: PropTypes.func.isRequired
 	}
 
+	renderTemplateItem = (value, id, opacity, style) => {
+		style.backgroundColor = value.color
+		return (
+			<div id={'rule-builder-id-' + id} style={{ opacity }}>
+				<div style={style}>
+					{value.title}
+				</div>
+			</div>
+		);
+	}
+
 	renderObject = props => {
 		const style = _.clone(ItemCss.logicElementStyle);
 
@@ -79,69 +92,59 @@ class LogicElement extends Component {
 
 		style.backgroundColor = ItemCss.backgroundColor[type];
 
-		if (type === 'operator' || type === 'comparison' || type === 'ifelse') {
-			return (
-				<div style={{ opacity }} id={'rule-builder-id-' + id}>
-					<div style={style}>
-						{renderIcon(value)}
+		switch (type) {
+			case 'operator':
+			case 'comparison':
+			case 'ifelse':
+				return (
+					<div>
+						<BasicElement id={id} value={value} opacity={opacity} style={style} renderIcon={renderIcon} />
 					</div>
-				</div>
-			);
-		} else if (type === 'component') {
-			style.backgroundColor = componentTemplateItems[value].color
-			return (
-				<div style={{ opacity }} id={'rule-builder-id-' + id}>
-					<div style={style}>
-						{componentTemplateItems[value].title}
+					);
+			case 'component':
+				return (
+					<div>
+						<TemplateElement id={id} value={componentTemplateItems[value]} opacity={opacity} style={style} />
 					</div>
-				</div>
-			);
-		} else if (type === 'rule') {
-			style.backgroundColor = ruleTemplateItems[value].color
-			return (
-				<div style={{ opacity }} id={'rule-builder-id-' + id}>
-					<div style={style}>
-						{ruleTemplateItems[value].title}
+				);
+			case 'rule':
+				return (
+					<div>
+						<TemplateElement id={id} value={ruleTemplateItems[value]} opacity={opacity} style={style} />
 					</div>
-				</div>
-			);
-		} else if (type === 'variable') {
-			style.backgroundColor = variableTemplateItems[value].color
-			return (
-				<div style={{ opacity }} id={'rule-builder-id-' + id}>
-					<div style={style}>
-						{variableTemplateItems[value].title}
+				);
+			case 'variable':
+				return (
+					<div>
+						<TemplateElement id={id} value={variableTemplateItems[value]} opacity={opacity} style={style} />
 					</div>
-				</div>
-			);
-		} else if (type === 'number') {
-			return (
-				<div style={{ opacity }} id={'rule-builder-id-' + id}>
-					<div style={style}>
-						<NumberElement id={id} value={value} editingId={editingId} changeNumber={changeNumber} />
+				);
+			case 'number':
+				return (
+					<div>
+						<NumberElement id={id} opacity={opacity} style={style} value={value} editingId={editingId} changeNumber={changeNumber} />
 					</div>
-				</div>
-			);
-		} else if (type === 'bracket') {
-			return (
-				<div>
-					<Bracket
-						id={id}
-						logicElements={value}
-						componentTemplateItems={componentTemplateItems}
-						ruleTemplateItems={ruleTemplateItems}
-						variableTemplateItems={variableTemplateItems}
-						moveElement={moveElement}
-						draggingId={draggingId}
-						updateDragging={updateDragging}
-						editingId={editingId}
-						changeNumber={changeNumber}
-						renderIcon={renderIcon}
-						getElementType={getElementType}
-						removeElement={removeElement}
-					/>
-				</div>
-			);
+				);
+			case 'bracket':
+				return (
+					<div>
+						<Bracket
+							id={id}
+							logicElements={value}
+							componentTemplateItems={componentTemplateItems}
+							ruleTemplateItems={ruleTemplateItems}
+							variableTemplateItems={variableTemplateItems}
+							moveElement={moveElement}
+							draggingId={draggingId}
+							updateDragging={updateDragging}
+							editingId={editingId}
+							changeNumber={changeNumber}
+							renderIcon={renderIcon}
+							getElementType={getElementType}
+							removeElement={removeElement}
+						/>
+					</div>
+				);
 		};
 	}
 
