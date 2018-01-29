@@ -320,155 +320,158 @@ class DragAndDropFormula extends Component {
 
     return (
       <div>
-        <div style={{marginTop: '5px'}}>
+        <div className="form-group">
           <label>Rules</label>&nbsp;
           <span className="glyphicon glyphicon-plus-sign" aria-hidden="true" onClick={() => changeTab('newRule', '')} />
-        </div>
-        <div style={style}>
-          <TemplateItem
-            index={0}
-            newId={0}
-            type="parentRule"
-            value={parentRule.name ? 'Parent Rule - ' + parentRule.name : 'Parent Rule'}
-            color="white"
-            renderIcon={this.renderIcon}
-            canDrag={false}
-            onClick={() => changeTab('parentRule', '')}
-          />
-          {Object.keys(ruleTemplateItems).map((key, i) => (
-            <TemplateItem
-              index={key}
-              key={i}
-              newId={newId}
-              type={getElementType(ruleTemplateItems[key].value)}
-              value={ruleTemplateItems[key].value}
-              color={ruleTemplateItems[key].color}
-              ruleTemplateItems={ruleTemplateItems}
-              updateDragging={this.updateDragging}
-              renderIcon={this.renderIcon}
-              canDrag={(currentTab.type === 'parentRule' || currentTab.type === 'newRule' || currentTab.type === 'rule')}
-              onClick={() => changeTab('rule', ruleTemplateItems[key].value)}
-              removeElement={this.removeElement}
-            />
-          ))}
-        </div>
-        <div style={{marginTop: '5px'}}>
-          <label>Components</label>&nbsp;
-          <span className="glyphicon glyphicon-plus-sign" aria-hidden="true" onClick={() => changeTab('newComponent', '')} />
-        </div>
-        <div style={style}>
-          {Object.keys(componentTemplateItems).length > 0 ? (
-            Object.keys(componentTemplateItems).map((key, i) => (
-              <TemplateItem
-                index={key}
-                key={i}
-                newId={newId}
-                type={getElementType(componentTemplateItems[key].value)}
-                value={componentTemplateItems[key].value}
-                color={componentTemplateItems[key].color}
-                componentTemplateItems={componentTemplateItems}
-                updateDragging={this.updateDragging}
-                renderIcon={this.renderIcon}
-                canDrag={true}
-                onClick={() => changeTab('component', componentTemplateItems[key].value)}
-                removeElement={this.removeElement}
-              />
-            ))
-          ) : (
-            <TemplateItem
-              index={0}
-              key={0}
-              newId={0}
-              type="nullIcon"
-              value="None"
-              color="black"
-              renderIcon={this.renderIcon}
-              canDrag={false}
-              removeElement={this.removeElement}
-            />
-          )}
-        </div>
-        <div style={{marginTop: '5px'}}>
-          <label>Variables</label>&nbsp;
-        </div>
-        <div style={style}>
-          {Object.keys(variableTemplateItems).length > 0 ? (
-            Object.keys(variableTemplateItems).map((key, i) => (
-              <TemplateItem
-                index={key}
-                key={i}
-                newId={newId}
-                type={getElementType(variableTemplateItems[key].value)}
-                value={variableTemplateItems[key].value}
-                color={variableTemplateItems[key].color}
-                variableTemplateItems={variableTemplateItems}
-                updateDragging={this.updateDragging}
-                renderIcon={this.renderIcon}
-                canDrag={true}
-                removeElement={this.removeElement}
-              />
-            ))
-          ) : (
-            <TemplateItem
-              index={0}
-              key={0}
-              newId={0}
-              type="nullIcon"
-              value="None"
-              color="black"
-              renderIcon={this.renderIcon}
-              canDrag={false}
-              removeElement={this.removeElement}
-            />
-          )}
-        </div>
-        <div style={{marginTop: '5px'}}>
-          <label>Operators</label>&nbsp;
-        </div>
-        <div style={style}>
-          {basicTemplateItems.map((templateItem, i) => (
-            <TemplateItem
-              index={i}
-              key={i}
-              newId={newId}
-              type={getElementType(templateItem)}
-              value={templateItem}
-              updateDragging={this.updateDragging}
-              renderIcon={this.renderIcon}
-              canDrag={true}
-              removeElement={this.removeElement}
-            />
-          ))}
-        </div>
-        <hr />
-        <DropLayer moveElement={this.moveElement} id="drop-layer">
           <div style={style}>
-            {logicElements.map((card, i) => (
-              <LogicElement
-                key={card.id}
-                id={card.id}
-                type={getElementType(card.value)}
-                value={card.value}
-                componentTemplateItems={componentTemplateItems}
-                variableTemplateItems={variableTemplateItems}
+            <TemplateItem
+              index={0}
+              newId={0}
+              type="parentRule"
+              value={parentRule.name ? 'Parent Rule - ' + parentRule.name : 'Parent Rule'}
+              color="white"
+              renderIcon={this.renderIcon}
+              canDrag={false}
+              onClick={() => changeTab('parentRule', '')}
+            />
+            {Object.keys(ruleTemplateItems).map((key, i) => (
+              <TemplateItem
+                index={key}
+                key={i}
+                newId={newId}
+                type={getElementType(ruleTemplateItems[key].value)}
+                value={ruleTemplateItems[key].value}
+                color={ruleTemplateItems[key].color}
                 ruleTemplateItems={ruleTemplateItems}
-                moveElement={this.moveElement}
-                draggingId={draggingId}
                 updateDragging={this.updateDragging}
-                editingId={editingId}
-                changeNumber={this.changeNumber}
                 renderIcon={this.renderIcon}
-                getElementType={getElementType}
+                canDrag={(currentTab.type === 'parentRule' || currentTab.type === 'newRule' || currentTab.type === 'rule')}
+                onClick={() => changeTab('rule', ruleTemplateItems[key].value)}
                 removeElement={this.removeElement}
               />
             ))}
           </div>
-        </DropLayer>
-        <ul className="parsley-errors-list">
-          {validation.formula.map((error, index) => <li className="parsley-required" key={index}>{error}</li>)}
-        </ul>
-        <br />
-        <button className="btn btn-info pull-right" type="button" onClick={() => saveChanges(logicElements)}>Save</button>
+        </div>
+        <div className="form-group">
+          <label>Components</label>&nbsp;
+          <span className="glyphicon glyphicon-plus-sign" aria-hidden="true" onClick={() => changeTab('newComponent', '')} />
+          <div style={style}>
+            {Object.keys(componentTemplateItems).length > 0 ? (
+              Object.keys(componentTemplateItems).map((key, i) => (
+                <TemplateItem
+                  index={key}
+                  key={i}
+                  newId={newId}
+                  type={getElementType(componentTemplateItems[key].value)}
+                  value={componentTemplateItems[key].value}
+                  color={componentTemplateItems[key].color}
+                  componentTemplateItems={componentTemplateItems}
+                  updateDragging={this.updateDragging}
+                  renderIcon={this.renderIcon}
+                  canDrag={true}
+                  onClick={() => changeTab('component', componentTemplateItems[key].value)}
+                  removeElement={this.removeElement}
+                />
+              ))
+            ) : (
+              <TemplateItem
+                index={0}
+                key={0}
+                newId={0}
+                type="nullIcon"
+                value="None"
+                color="black"
+                renderIcon={this.renderIcon}
+                canDrag={false}
+                removeElement={this.removeElement}
+              />
+            )}
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Variables</label>&nbsp;
+          <div style={style}>
+            {Object.keys(variableTemplateItems).length > 0 ? (
+              Object.keys(variableTemplateItems).map((key, i) => (
+                <TemplateItem
+                  index={key}
+                  key={i}
+                  newId={newId}
+                  type={getElementType(variableTemplateItems[key].value)}
+                  value={variableTemplateItems[key].value}
+                  color={variableTemplateItems[key].color}
+                  variableTemplateItems={variableTemplateItems}
+                  updateDragging={this.updateDragging}
+                  renderIcon={this.renderIcon}
+                  canDrag={true}
+                  removeElement={this.removeElement}
+                />
+              ))
+            ) : (
+              <TemplateItem
+                index={0}
+                key={0}
+                newId={0}
+                type="nullIcon"
+                value="None"
+                color="black"
+                renderIcon={this.renderIcon}
+                canDrag={false}
+                removeElement={this.removeElement}
+              />
+            )}
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Operators</label>&nbsp;
+          <div style={style}>
+            {basicTemplateItems.map((templateItem, i) => (
+              <TemplateItem
+                index={i}
+                key={i}
+                newId={newId}
+                type={getElementType(templateItem)}
+                value={templateItem}
+                updateDragging={this.updateDragging}
+                renderIcon={this.renderIcon}
+                canDrag={true}
+                removeElement={this.removeElement}
+              />
+            ))}
+          </div>
+        </div>
+        <hr />
+        <div className="form-group">
+          <DropLayer moveElement={this.moveElement} id="drop-layer">
+            <div style={style}>
+              {logicElements.map((card, i) => (
+                <LogicElement
+                  key={card.id}
+                  id={card.id}
+                  type={getElementType(card.value)}
+                  value={card.value}
+                  componentTemplateItems={componentTemplateItems}
+                  variableTemplateItems={variableTemplateItems}
+                  ruleTemplateItems={ruleTemplateItems}
+                  moveElement={this.moveElement}
+                  draggingId={draggingId}
+                  updateDragging={this.updateDragging}
+                  editingId={editingId}
+                  changeNumber={this.changeNumber}
+                  renderIcon={this.renderIcon}
+                  getElementType={getElementType}
+                  removeElement={this.removeElement}
+                />
+              ))}
+            </div>
+          </DropLayer>
+          <ul className="parsley-errors-list">
+            {validation.formula.map((error, index) => <li className="parsley-required" key={index}>{error}</li>)}
+          </ul>
+        </div>
+        <div className="form-group">
+          <button className="btn btn-info pull-right" type="button" onClick={() => saveChanges(logicElements)}>Save</button>
+        </div>
       </div>
     );
   }
