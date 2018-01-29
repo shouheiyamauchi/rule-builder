@@ -440,17 +440,19 @@ class MainContainer extends Component {
           />
         </div>
         <div className="col-md-12">
-          <DragAndDropFormula
-            key={this.state.componentUpdateKey}
-            currentTab={this.state.currentTab}
-            values={this.generateDragAndDropFormulaObject()}
-            changeTab={this.changeTab}
-            updateCurrentFormula={this.updateCurrentFormula}
-            saveChanges={this.saveChanges}
-            getElementType={this.getElementType}
-            validation={this.state.validation}
-            parentRule={this.state.parentRule}
-          />
+          <div className="form-group">
+            <DragAndDropFormula
+              key={this.state.componentUpdateKey}
+              currentTab={this.state.currentTab}
+              values={this.generateDragAndDropFormulaObject()}
+              changeTab={this.changeTab}
+              updateCurrentFormula={this.updateCurrentFormula}
+              saveChanges={this.saveChanges}
+              getElementType={this.getElementType}
+              validation={this.state.validation}
+              parentRule={this.state.parentRule}
+            />
+          </div>
         </div>
       </div>
     );
