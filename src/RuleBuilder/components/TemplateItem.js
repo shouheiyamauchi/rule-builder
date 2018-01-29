@@ -17,8 +17,11 @@ const templateItemSource = {
 	canDrag(props) {
 		return props.canDrag;
 	},
-	endDrag(props) {
+	endDrag(props, monitor) {
 		props.updateDragging(null);
+
+		const outsideDropZone = !monitor.didDrop();
+		if (outsideDropZone) props.removeElement(monitor);
 	}
 }
 
@@ -39,7 +42,8 @@ class TemplateItem extends Component {
 		variableTemplateItems: PropTypes.object,
 		renderIcon: PropTypes.func.isRequired,
 		canDrag: PropTypes.bool.isRequired,
-		onClick: PropTypes.func
+		onClick: PropTypes.func,
+		removeElement: PropTypes.func.isRequired
 	}
 
 	renderObject = props => {

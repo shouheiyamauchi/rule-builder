@@ -61,7 +61,6 @@ class DragAndDropFormula extends Component {
   }
 
   moveElement = (props, monitor, dropTargetType) => {
-    // console.log(dropTargetType)
     const dragItem = monitor.getItem();
     const dragId = dragItem.id;
 
@@ -89,6 +88,24 @@ class DragAndDropFormula extends Component {
     moveFunctionToExecute[draggingItemType](hoverItem, dragItem, dropTargetType, leftOrRightOverHoverItem);
   }
 
+  removeElement = monitor => {
+    const logicElements = _.cloneDeep(this.state.logicElements);
+
+    const dragItem = monitor.getItem();
+    const dragId = dragItem.id;
+
+    const parentAndIndexOfDragging = this.getParentArrayAndIndex(dragId, logicElements);
+    const draggingObject = _.cloneDeep(parentAndIndexOfDragging.parentArray[parentAndIndexOfDragging.index]);
+
+    parentAndIndexOfDragging.parentArray.splice(parentAndIndexOfDragging.index, 1);
+
+    this.setState({
+      logicElements
+    }, () => {
+      this.props.updateCurrentFormula(logicElements);
+    });
+  }
+
   mousePositionOverHoverItem = (hoverId, monitor) => {
     const hoverElementProperties = $('#rule-builder-id-' + hoverId)[0].getBoundingClientRect();
     const centerOfElement = (hoverElementProperties.left + hoverElementProperties.width / 2);
@@ -113,6 +130,7 @@ class DragAndDropFormula extends Component {
     const draggingObject = _.cloneDeep(parentAndIndexOfDragging.parentArray[parentAndIndexOfDragging.index]);
 
     parentAndIndexOfDragging.parentArray.splice(parentAndIndexOfDragging.index, 1);
+
     if (dropTargetType === ItemTypes.DROP_LAYER) {
       const insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : logicElements.length;
       logicElements.splice(insertIndex, 0, draggingObject);
@@ -159,22 +177,22 @@ class DragAndDropFormula extends Component {
     const newObject = this.constructNewObject(dragItem.templateItemType, dragItem);
     newObject.id = newId;
 
-    const parentAndIndexOfHovering = this.getParentArrayAndIndex(hoverId, logicElements);
-    // ternary statement to account for edge case of outer drop layer
-    const hoveringObject = parentAndIndexOfHovering.index ? parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index] : parentAndIndexOfHovering.parentArray;
-
-    let insertIndex = null;
-
     if (dropTargetType === ItemTypes.DROP_LAYER) {
-      insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.length;
-      hoveringObject.splice(insertIndex, 0, newObject);
-    } else if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
-      insertIndex = leftOrRightOverHoverItem === 'left' ? parentAndIndexOfHovering.index : parentAndIndexOfHovering.index + 1;
-      parentAndIndexOfHovering.parentArray.splice(insertIndex, 0, newObject);
-    } else if (dropTargetType === ItemTypes.BRACKET) {
-      insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.value.length;
-      hoveringObject.value.splice(insertIndex, 0, newObject);
-    };
+      const insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : logicElements.length;
+      logicElements.splice(insertIndex, 0, newObject);
+    } else {
+      const parentAndIndexOfHovering = this.getParentArrayAndIndex(hoverId, logicElements);
+      const hoveringObject = parentAndIndexOfHovering.parentArray[parentAndIndexOfHovering.index];
+      let insertIndex = null;
+
+      if (dropTargetType === ItemTypes.LOGIC_ELEMENT) {
+        insertIndex = leftOrRightOverHoverItem === 'left' ? parentAndIndexOfHovering.index : parentAndIndexOfHovering.index + 1;
+        parentAndIndexOfHovering.parentArray.splice(insertIndex, 0, newObject);
+      } else if (dropTargetType === ItemTypes.BRACKET) {
+        insertIndex = leftOrRightOverHoverItem === 'left' ? 0 : hoveringObject.value.length;
+        hoveringObject.value.splice(insertIndex, 0, newObject);
+      };
+    }
 
     const lastDrag = {
       dragId,
@@ -213,8 +231,6 @@ class DragAndDropFormula extends Component {
   }
 
   getParentArrayAndIndex = (logicElementId, array) => {
-    if (logicElementId === 'drop-layer') return {parentArray: array, index: null}
-
     for (let i = 0; i < array.length; i++) {
       if (array[i].id === logicElementId) {
         return {parentArray: array, index: i};
@@ -312,6 +328,7 @@ class DragAndDropFormula extends Component {
             updateDragging={this.updateDragging}
             renderIcon={this.renderIcon}
             getElementType={getElementType}
+            removeElement={this.removeElement}
           />
         </div>
         <div className="col-md-9">
@@ -327,6 +344,7 @@ class DragAndDropFormula extends Component {
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
                 canDrag={true}
+                removeElement={this.removeElement}
               />
             ))}
           </div>
@@ -344,6 +362,7 @@ class DragAndDropFormula extends Component {
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
                 canDrag={(currentTab.type === 'parentRule' || currentTab.type === 'newRule' || currentTab.type === 'rule')}
+                removeElement={this.removeElement}
               />
             ))}
           </div>
@@ -361,6 +380,7 @@ class DragAndDropFormula extends Component {
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
                 canDrag={true}
+                removeElement={this.removeElement}
               />
             ))}
           </div>
@@ -383,6 +403,7 @@ class DragAndDropFormula extends Component {
                   changeNumber={this.changeNumber}
                   renderIcon={this.renderIcon}
                   getElementType={getElementType}
+                  removeElement={this.removeElement}
                 />
               ))}
             </div>

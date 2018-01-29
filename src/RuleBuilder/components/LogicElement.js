@@ -15,8 +15,11 @@ const logicElementSource = {
 			id: props.id
 		};
 	},
-	endDrag(props) {
+	endDrag(props, monitor) {
 		props.updateDragging(null);
+
+		const outsideDropZone = !monitor.didDrop();
+		if (outsideDropZone) props.removeElement(monitor);
 	}
 }
 
@@ -48,7 +51,8 @@ class LogicElement extends Component {
 		editingId: PropTypes.number,
 		changeNumber: PropTypes.func.isRequired,
 		renderIcon: PropTypes.func.isRequired,
-		getElementType: PropTypes.func.isRequired
+		getElementType: PropTypes.func.isRequired,
+		removeElement: PropTypes.func.isRequired
 	}
 
 	renderObject = props => {
@@ -67,7 +71,8 @@ class LogicElement extends Component {
 			editingId,
 			changeNumber,
 			renderIcon,
-			getElementType
+			getElementType,
+			removeElement
 		} = props;
 
 		const opacity = id === draggingId ? 0.5 : 1;
@@ -133,6 +138,7 @@ class LogicElement extends Component {
 						changeNumber={changeNumber}
 						renderIcon={renderIcon}
 						getElementType={getElementType}
+						removeElement={removeElement}
 					/>
 				</div>
 			);

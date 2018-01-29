@@ -13,8 +13,11 @@ const bracketSource = {
 			id: props.id
 		};
 	},
-	endDrag(props) {
+	endDrag(props, monitor) {
 		props.updateDragging(null);
+
+		const outsideDropZone = !monitor.didDrop();
+		if (outsideDropZone) props.removeElement(monitor);
 	}
 }
 
@@ -40,7 +43,9 @@ class Bracket extends Component {
     moveElement: PropTypes.func.isRequired,
 		editingId: PropTypes.number,
 		changeNumber: PropTypes.func.isRequired,
-		renderIcon: PropTypes.func.isRequired
+		renderIcon: PropTypes.func.isRequired,
+		getElementType: PropTypes.func.isRequired,
+		removeElement: PropTypes.func.isRequired
 	}
 
 	render() {
@@ -58,7 +63,8 @@ class Bracket extends Component {
       editingId,
       changeNumber,
 			renderIcon,
-			getElementType
+			getElementType,
+			removeElement
 		} = this.props
 
     const opacity = id === draggingId ? 0.5 : 1
@@ -94,6 +100,7 @@ class Bracket extends Component {
                     changeNumber={changeNumber}
 										renderIcon={renderIcon}
 										getElementType={getElementType}
+										removeElement={removeElement}
                   />
                 ))}
               <span style={bracketsCss}>)</span>

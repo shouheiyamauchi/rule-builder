@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ComponentButton from '../components/ComponentButton';
 import TemplateItem from '../components/TemplateItem';
 
 const Components = props => {
@@ -12,7 +11,8 @@ const Components = props => {
     variableTemplateItems,
     updateDragging,
     renderIcon,
-    getElementType
+    getElementType,
+    removeElement
   } = props
 
   return (
@@ -26,11 +26,6 @@ const Components = props => {
         </span>
         <div style={{clear: 'both'}}></div>
       </h4>
-      {/* <div style={{'margin': '5px 15px'}}>
-        {components.map((component, index) => {
-          return <div className="form-group" key={index}><ComponentButton name={component.name} changeTab={changeTab} /></div>
-        })}
-      </div> */}
       <div style={style}>
         {Object.keys(componentTemplateItems).map((key, i) => (
           <TemplateItem
@@ -46,6 +41,7 @@ const Components = props => {
             updateDragging={updateDragging}
             renderIcon={renderIcon}
             canDrag={componentTemplateItems[key].canDrag}
+            removeElement={removeElement}
           />
         ))}
       </div>
@@ -60,7 +56,8 @@ Components.propTypes = {
   componentTemplateItems: PropTypes.object.isRequired,
   updateDragging: PropTypes.func.isRequired,
   renderIcon: PropTypes.func.isRequired,
-  getElementType: PropTypes.func.isRequired
+  getElementType: PropTypes.func.isRequired,
+  removeElement: PropTypes.func.isRequired
 };
 
 export default Components;
