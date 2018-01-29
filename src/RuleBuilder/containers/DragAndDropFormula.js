@@ -95,7 +95,6 @@ class DragAndDropFormula extends Component {
     const dragId = dragItem.id;
 
     const parentAndIndexOfDragging = this.getParentArrayAndIndex(dragId, logicElements);
-    const draggingObject = _.cloneDeep(parentAndIndexOfDragging.parentArray[parentAndIndexOfDragging.index]);
 
     parentAndIndexOfDragging.parentArray.splice(parentAndIndexOfDragging.index, 1);
 

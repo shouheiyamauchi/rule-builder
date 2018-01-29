@@ -5252,6 +5252,12 @@ react-scripts@1.0.17:
   optionalDependencies:
     fsevents "1.1.2"
 
+react-switch@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-switch/-/react-switch-2.3.0.tgz#5fc452960c028ae8b071418d084b51e512f671c1"
+  dependencies:
+    prop-types "^15.6.0"
+
 react@^16.2.0:
   version "16.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.2.0.tgz#a31bd2dab89bff65d42134fa187f24d054c273ba"
