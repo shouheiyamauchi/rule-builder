@@ -28,7 +28,7 @@ const templateItemSource = {
 class TemplateItem extends Component {
 	static propTypes = {
 		connectDragSource: PropTypes.func.isRequired,
-    updateDragging: PropTypes.func.isRequired,
+    updateDragging: PropTypes.func,
 		index: PropTypes.oneOfType([
 			PropTypes.number,
 			PropTypes.string
@@ -43,7 +43,7 @@ class TemplateItem extends Component {
 		renderIcon: PropTypes.func.isRequired,
 		canDrag: PropTypes.bool.isRequired,
 		onClick: PropTypes.func,
-		removeElement: PropTypes.func.isRequired
+		removeElement: PropTypes.func
 	}
 
 	renderObject = props => {
@@ -66,13 +66,13 @@ class TemplateItem extends Component {
 		if (!canDrag) { style.opacity = 0.5 ; style.color = 'grey' }
 
 		if (type === 'component') {
-			return <div onClick={onClick} style={{ ...style }}>{componentTemplateItems[value].title}</div>
+			return <div style={{ ...style }} onClick={onClick}>{componentTemplateItems[value].title}</div>
 		} else if (type === 'rule') {
-			return <div style={{ ...style }}>{ruleTemplateItems[value].title}</div>
+			return <div style={{ ...style }} onClick={onClick}>{ruleTemplateItems[value].title}</div>
 		} else if (type === 'variable') {
-			return <div style={{ ...style }}>{variableTemplateItems[value].title}</div>
+			return <div style={{ ...style }} onClick={onClick}>{variableTemplateItems[value].title}</div>
 		} else {
-			return <div style={{ ...style }}>{renderIcon(value)}</div>
+			return <div style={{ ...style }} onClick={onClick}>{renderIcon(value)}</div>
 		};
 	}
 

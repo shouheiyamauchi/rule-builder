@@ -19,7 +19,10 @@ class App extends Component {
   render() {
     const props = {
       components: {},
-      parentRule: {},
+      parentRule: {
+        name: '',
+        formula: []
+      },
       rules: {},
       variableTemplateItems: {
         '#1': {

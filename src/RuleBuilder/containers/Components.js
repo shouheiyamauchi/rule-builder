@@ -29,7 +29,6 @@ const Components = props => {
       <div style={style}>
         {Object.keys(componentTemplateItems).map((key, i) => (
           <TemplateItem
-            onClick={() => props.changeTab('component', componentTemplateItems[key].value)}
             index={key}
             key={i}
             newId={newId}
@@ -41,6 +40,7 @@ const Components = props => {
             updateDragging={updateDragging}
             renderIcon={renderIcon}
             canDrag={componentTemplateItems[key].canDrag}
+            onClick={() => changeTab('component', componentTemplateItems[key].value)}
             removeElement={removeElement}
           />
         ))}

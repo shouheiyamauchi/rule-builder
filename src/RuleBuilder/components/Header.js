@@ -10,9 +10,9 @@ const Header = props => {
   }[props.currentTab.type]
 
   return (
-    <div>
+    <div className="form-group">
       <label>Currently Editing:</label>
-      <br />{header}{!props.currentTab.value ? null : (': ' + props.currentTab.value)}
+      <br />{header}{!props.currentTab.value ? null : (' (id - ' + props.currentTab.value + ')')}
     </div>
   );
 }

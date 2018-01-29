@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import update from 'immutability-helper';
 import DragAndDropFormula from './DragAndDropFormula';
-import RulesMenu from '../components/RulesMenu';
 import Header from '../components/Header';
 import Formula from './Formula';
 
@@ -429,13 +428,7 @@ class MainContainer extends Component {
     return (
       <div className="row">
         <div className="col-md-12">
-          <span style={{float: 'left'}}>
-            <Header currentTab={this.state.currentTab} />
-          </span>
-          <span style={{float: 'right'}}>
-            <RulesMenu parentRule={this.state.parentRule} rules={this.state.rules} changeTab={this.changeTab} />
-          </span>
-          <div style={{clear: 'both'}}></div>
+          <Header currentTab={this.state.currentTab} />
         </div>
         <div className="col-md-12">
           <Formula
@@ -456,6 +449,7 @@ class MainContainer extends Component {
             saveChanges={this.saveChanges}
             getElementType={this.getElementType}
             validation={this.state.validation}
+            parentRule={this.state.parentRule}
           />
         </div>
       </div>

@@ -25,7 +25,7 @@ class DropLayer extends Component {
 		} = this.props
 
 		return connectDropTarget(
-			<div id="rule-builder-id-drop-layer" style={{border: '1px solid black', height: '150px'}}>
+			<div id="rule-builder-id-drop-layer" style={{border: '1px solid black', minHeight: '150px'}}>
 				{children}
 			</div>
 		);
