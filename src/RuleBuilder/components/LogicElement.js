@@ -5,10 +5,10 @@ import flow from 'lodash/flow';
 import { DragSource, DropTarget } from 'react-dnd';
 import ItemTypes from '../config/ItemTypes';
 import ItemCss from '../config/ItemCss';
+import LogicElementTypes from '../config/LogicElementTypes';
 import Bracket from './Bracket';
 import BasicElement from './BasicElement';
 import NumberElement from './NumberElement';
-import TemplateElement from './TemplateElement';
 
 const logicElementSource = {
 	beginDrag(props) {
@@ -88,46 +88,21 @@ class LogicElement extends Component {
 			removeElement
 		} = props;
 
-		const opacity = id === draggingId ? 0.5 : 1;
-
-		style.backgroundColor = ItemCss.backgroundColor[type];
-
 		switch(type) {
-			case 'operator':
-			case 'comparison':
-			case 'ifelse':
+			case LogicElementTypes.OPERATOR:
+			case LogicElementTypes.COMPARISON:
+			case LogicElementTypes.IFELSE:
+				return <BasicElement value={renderIcon(value)} style={style} backgroundColor={ItemCss.backgroundColor[type]} />;
+			case LogicElementTypes.COMPONENT:
+				return <BasicElement value={componentTemplateItems[value].title} style={style} backgroundColor={componentTemplateItems[value].color} />;
+			case LogicElementTypes.RULE:
+				return <BasicElement value={ruleTemplateItems[value].title} style={style} backgroundColor={ruleTemplateItems[value].color} />;
+			case LogicElementTypes.VARIABLE:
+				return <BasicElement value={variableTemplateItems[value].title} style={style} backgroundColor={variableTemplateItems[value].color} />;
+			case LogicElementTypes.NUMBER:
+				return <NumberElement id={id} style={style} value={value} editingId={editingId} changeNumber={changeNumber} backgroundColor={ItemCss.backgroundColor.number} />;
+			case LogicElementTypes.BRACKET:
 				return (
-					<div>
-						<BasicElement id={id} value={value} opacity={opacity} style={style} renderIcon={renderIcon} />
-					</div>
-				);
-			case 'component':
-				return (
-					<div>
-						<TemplateElement value={componentTemplateItems[value]} id={id} opacity={opacity} style={style} />
-					</div>
-				);
-			case 'rule':
-				return (
-					<div>
-						<TemplateElement value={ruleTemplateItems[value]} id={id} opacity={opacity} style={style} />
-					</div>
-				);
-			case 'variable':
-				return (
-					<div>
-						<TemplateElement value={variableTemplateItems[value]} id={id} opacity={opacity} style={style} />
-					</div>
-				);
-			case 'number':
-				return (
-					<div>
-						<NumberElement id={id} opacity={opacity} style={style} value={value} editingId={editingId} changeNumber={changeNumber} />
-					</div>
-				);
-			case 'bracket':
-				return (
-					<div>
 						<Bracket
 							id={id}
 							logicElements={value}
@@ -143,8 +118,9 @@ class LogicElement extends Component {
 							getElementType={getElementType}
 							removeElement={removeElement}
 						/>
-					</div>
 				);
+			default:
+				return;
 		};
 	}
 
@@ -152,14 +128,20 @@ class LogicElement extends Component {
 		const {
 			connectDragSource,
 			connectDropTarget,
-			connectDragPreview
+			connectDragPreview,
+			id,
+			draggingId
 		} = this.props
 
+		const opacity = id === draggingId ? 0.5 : 1;
+
 		return connectDragPreview(
-			<div style={{transform: 'translate3d(0,0,0)'}}>
+			<div id={'rule-builder-id-' + id} style={{opacity, transform: 'translate3d(0,0,0)'}}>
 				{connectDragSource(
 					connectDropTarget(
-						this.renderObject(this.props)
+						<div>
+							{this.renderObject(this.props)}
+						</div>
 					)
 				)}
 			</div>

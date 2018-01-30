@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import update from 'immutability-helper';
+import LogicElementTypes from '../config/LogicElementTypes';
 import DragAndDropFormula from './DragAndDropFormula';
 import Header from '../components/Header';
 import Formula from './Formula';
@@ -404,21 +404,21 @@ class MainContainer extends Component {
     let elementType = ''
 
     if (logicElementValue.constructor === Array || logicElementValue === '( )') {
-      elementType = 'bracket'
+      elementType = LogicElementTypes.BRACKET
     } else if (logicElementValue[0] === '@') {
-      elementType = 'component'
+      elementType = LogicElementTypes.COMPONENT
     } else if (logicElementValue[0] === '#') {
-      elementType = 'variable'
+      elementType = LogicElementTypes.VARIABLE
     } else if (logicElementValue[0] === '~') {
-      elementType = 'rule'
+      elementType = LogicElementTypes.RULE
     } else if (['+', '-', '*', '/'].indexOf(logicElementValue) !== -1) {
-      elementType = 'operator'
+      elementType = LogicElementTypes.OPERATOR
     } else if (['<', '>', '<=', '>=', '='].indexOf(logicElementValue) !== -1) {
-      elementType = 'comparison'
+      elementType = LogicElementTypes.COMPARISON
     } else if (['IF', 'ELSIF', 'ELSE'].indexOf(logicElementValue) !== -1) {
-      elementType = 'ifelse'
+      elementType = LogicElementTypes.IFELSE
     } else {
-      elementType = 'number'
+      elementType = LogicElementTypes.NUMBER
     };
 
     return elementType;

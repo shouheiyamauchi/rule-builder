@@ -12,10 +12,6 @@ class TouchContainer extends Component {
     variableTemplateItems: PropTypes.object.isRequired
   }
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return <MainContainer {...this.props}/>
   }

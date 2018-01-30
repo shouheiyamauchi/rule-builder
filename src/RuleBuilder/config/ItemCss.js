@@ -15,7 +15,7 @@ module.exports = {
     color: 'white',
     margin: '5px 3px'
   },
-  bracketStyle: {
+  bracketContentStyle: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -23,6 +23,11 @@ module.exports = {
     backgroundColor: 'rgba(0, 0, 0, 0.04)',
     padding: '2px 5px',
     margin: '3px 0px'
+  },
+  bracketStyle: {
+    fontSize: '20px',
+    padding: '0px 3px',
+    color: '#666666'
   },
   backgroundColor: {
     number: '#005F7F',

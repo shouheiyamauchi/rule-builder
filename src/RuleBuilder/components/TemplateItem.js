@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { DragSource } from 'react-dnd';
 import ItemTypes from '../config/ItemTypes';
 import ItemCss from '../config/ItemCss';
+import BasicElement from './BasicElement';
 
 const templateItemSource = {
 	beginDrag(props) {
@@ -60,19 +61,18 @@ class TemplateItem extends Component {
 		} = props
 
 		const style = _.clone(ItemCss.templateItemStyle)
-
-		style.backgroundColor = ItemCss.backgroundColor[type]
-		if (color) style.backgroundColor = color
+		const backgroundColor = color || ItemCss.backgroundColor[type]
 		if (!canDrag) { style.opacity = 0.5 ; style.color = 'grey' }
 
-		if (type === 'component') {
-			return <div style={{ ...style }} onClick={onClick}>{componentTemplateItems[value].title}</div>
-		} else if (type === 'rule') {
-			return <div style={{ ...style }} onClick={onClick}>{ruleTemplateItems[value].title}</div>
-		} else if (type === 'variable') {
-			return <div style={{ ...style }} onClick={onClick}>{variableTemplateItems[value].title}</div>
-		} else {
-			return <div style={{ ...style }} onClick={onClick}>{renderIcon(value)}</div>
+		switch (type) {
+			case 'component':
+				return <BasicElement value={componentTemplateItems[value].title} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
+			case 'rule':
+				return <BasicElement value={ruleTemplateItems[value].title} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
+			case 'variable':
+				return <BasicElement value={variableTemplateItems[value].title} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
+			default:
+				return <BasicElement value={renderIcon(value)} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
 		};
 	}
 
@@ -85,7 +85,9 @@ class TemplateItem extends Component {
 		return connectDragPreview(
 			<div style={{transform: 'translate3d(0,0,0)'}}>
 				{connectDragSource(
-					this.renderObject(this.props)
+					<div>
+						{this.renderObject(this.props)}
+					</div>
 				)}
 			</div>
 		);

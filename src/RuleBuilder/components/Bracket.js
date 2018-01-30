@@ -36,7 +36,6 @@ class Bracket extends Component {
 		connectDropTarget: PropTypes.func.isRequired,
     draggingId: PropTypes.number,
     updateDragging: PropTypes.func.isRequired,
-    id: PropTypes.number.isRequired,
     logicElements: PropTypes.array.isRequired,
 		componentTemplateItems: PropTypes.object.isRequired,
 		variableTemplateItems: PropTypes.object.isRequired,
@@ -54,7 +53,6 @@ class Bracket extends Component {
 			connectDropTarget,
       draggingId,
       updateDragging,
-  		id,
 			logicElements,
       componentTemplateItems,
 			ruleTemplateItems,
@@ -67,22 +65,12 @@ class Bracket extends Component {
 			removeElement
 		} = this.props
 
-    const opacity = id === draggingId ? 0.5 : 1
-
-    const style = ItemCss.bracketStyle
-
-    const bracketsCss = {
-      fontSize: '20px',
-      padding: '0px 3px',
-			color: '#666666'
-    }
-
 		return (
       <div style={{margin: '3px'}}>
         {connectDragSource(
     			connectDropTarget(
-            <div style={{ ...style, opacity }} id={'rule-builder-id-' + id}>
-              <span style={bracketsCss}>(</span>
+            <div style={ItemCss.bracketContentStyle}>
+              <span style={ItemCss.bracketStyle}>(</span>
                 {logicElements.map((card, i) => (
                   <LogicElement
                     key={card.id}
@@ -103,7 +91,7 @@ class Bracket extends Component {
 										removeElement={removeElement}
                   />
                 ))}
-              <span style={bracketsCss}>)</span>
+              <span style={ItemCss.bracketStyle}>)</span>
             </div>
           ),
     		)}

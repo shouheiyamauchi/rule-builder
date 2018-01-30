@@ -62,10 +62,10 @@ class App extends Component {
             className="react-switch"
             id="material-switch"
           />
-          <br />
-          <br />
         </div>
-        {this.state.touchMode ? <TouchContainer {...props} /> : <MouseContainer {...props} />}
+        <div style={{clear: 'both'}}>
+          {this.state.touchMode ? <TouchContainer {...props} /> : <MouseContainer {...props} />}
+        </div>
       </div>
     );
   }
