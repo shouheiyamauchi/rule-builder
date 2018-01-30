@@ -92,7 +92,7 @@ class LogicElement extends Component {
 
 		style.backgroundColor = ItemCss.backgroundColor[type];
 
-		switch (type) {
+		switch(type) {
 			case 'operator':
 			case 'comparison':
 			case 'ifelse':
@@ -100,23 +100,23 @@ class LogicElement extends Component {
 					<div>
 						<BasicElement id={id} value={value} opacity={opacity} style={style} renderIcon={renderIcon} />
 					</div>
-					);
+				);
 			case 'component':
 				return (
 					<div>
-						<TemplateElement id={id} value={componentTemplateItems[value]} opacity={opacity} style={style} />
+						<TemplateElement value={componentTemplateItems[value]} id={id} opacity={opacity} style={style} />
 					</div>
 				);
 			case 'rule':
 				return (
 					<div>
-						<TemplateElement id={id} value={ruleTemplateItems[value]} opacity={opacity} style={style} />
+						<TemplateElement value={ruleTemplateItems[value]} id={id} opacity={opacity} style={style} />
 					</div>
 				);
 			case 'variable':
 				return (
 					<div>
-						<TemplateElement id={id} value={variableTemplateItems[value]} opacity={opacity} style={style} />
+						<TemplateElement value={variableTemplateItems[value]} id={id} opacity={opacity} style={style} />
 					</div>
 				);
 			case 'number':
@@ -151,20 +151,26 @@ class LogicElement extends Component {
 	render() {
 		const {
 			connectDragSource,
-			connectDropTarget
+			connectDropTarget,
+			connectDragPreview
 		} = this.props
 
-		return connectDragSource(
-			connectDropTarget(
-				this.renderObject(this.props)
-			)
+		return connectDragPreview(
+			<div style={{transform: 'translate3d(0,0,0)'}}>
+				{connectDragSource(
+					connectDropTarget(
+						this.renderObject(this.props)
+					)
+				)}
+			</div>
 		);
 	}
 }
 
 export default flow(
   DragSource(ItemTypes.LOGIC_ELEMENT, logicElementSource, (connect, monitor) => ({
-  	connectDragSource: connect.dragSource()
+  	connectDragSource: connect.dragSource(),
+		connectDragPreview: connect.dragPreview()
   })),
   DropTarget([ItemTypes.BRACKET, ItemTypes.TEMPLATE_ITEM, ItemTypes.LOGIC_ELEMENT], logicElementTarget, connect => ({
   	connectDropTarget: connect.dropTarget()

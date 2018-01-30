@@ -5,8 +5,7 @@ module.exports = {
     display: 'flex',
     alignItems: 'center',
     color: 'white',
-    margin: '5px 3px',
-    boxShadow: '0px 3px 5px #ccc'
+    margin: '5px 3px'
   },
   logicElementStyle: {
     padding: '5px 13px',
@@ -14,8 +13,7 @@ module.exports = {
     display: 'flex',
     alignItems: 'center',
     color: 'white',
-    margin: '5px 3px',
-    boxShadow: '0px 3px 5px #ccc'
+    margin: '5px 3px'
   },
   bracketStyle: {
     display: 'flex',
@@ -24,8 +22,7 @@ module.exports = {
     borderRadius: '20px',
     backgroundColor: 'rgba(0, 0, 0, 0.04)',
     padding: '2px 5px',
-    margin: '3px 0px',
-    boxShadow: '0px 3px 5px #ccc'
+    margin: '3px 0px'
   },
   backgroundColor: {
     number: '#005F7F',

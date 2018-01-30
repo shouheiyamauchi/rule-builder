@@ -78,15 +78,21 @@ class TemplateItem extends Component {
 
 	render() {
 		const {
-			connectDragSource
+			connectDragSource,
+			connectDragPreview
 		} = this.props
 
-		return connectDragSource(
-			this.renderObject(this.props)
+		return connectDragPreview(
+			<div style={{transform: 'translate3d(0,0,0)'}}>
+				{connectDragSource(
+					this.renderObject(this.props)
+				)}
+			</div>
 		);
 	}
 }
 
 export default DragSource(ItemTypes.TEMPLATE_ITEM, templateItemSource, (connect, monitor) => ({
-	connectDragSource: connect.dragSource()
+	connectDragSource: connect.dragSource(),
+	connectDragPreview: connect.dragPreview()
 }))(TemplateItem);

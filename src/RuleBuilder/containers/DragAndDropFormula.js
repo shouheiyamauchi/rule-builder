@@ -96,6 +96,9 @@ class DragAndDropFormula extends Component {
 
     const parentAndIndexOfDragging = this.getParentArrayAndIndex(dragId, logicElements);
 
+    // return if item hasn't been added to box yet
+    if (!parentAndIndexOfDragging) return;
+
     parentAndIndexOfDragging.parentArray.splice(parentAndIndexOfDragging.index, 1);
 
     this.setState({
