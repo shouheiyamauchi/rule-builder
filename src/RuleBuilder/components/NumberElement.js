@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ItemCss from '../config/ItemCss'
+import _ from 'lodash';
+import ItemCss from '../config/ItemCss';
 
 class NumberElement extends Component {
   static propTypes = {
@@ -33,12 +34,12 @@ class NumberElement extends Component {
     const {
       id,
       value,
-      style,
       editingId,
       changeNumber,
       backgroundColor
     } = this.props
 
+    const style = _.cloneDeep(this.props.style)
     style.backgroundColor = backgroundColor;
 
     if (editingId === id) {

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 import _ from 'lodash';
+import axios from 'axios';
 import LogicElementTypes from '../config/LogicElementTypes';
 import DragAndDropFormula from './DragAndDropFormula';
 import Header from '../components/Header';
@@ -8,15 +10,18 @@ import Formula from './Formula';
 
 class MainContainer extends Component {
   static propTypes = {
+    logicSetId: PropTypes.number.isRequired,
     components: PropTypes.object.isRequired,
     parentRule: PropTypes.object.isRequired,
     rules: PropTypes.object.isRequired,
-    variableTemplateItems: PropTypes.object.isRequired
+    variableTemplateItems: PropTypes.object.isRequired,
+    selectLogicSet: PropTypes.func.isRequired
   }
 
   constructor(props) {
     super(props);
     this.state = {
+      logicSetId: null,
       componentUpdateKey: 0,
       components: {},
       parentRule: {
@@ -24,7 +29,7 @@ class MainContainer extends Component {
         formula: []
       },
       rules: {},
-      variableTemplateItems: {},
+      variables: {},
       currentTab: {
         type: 'parentRule',
         value: ''
@@ -40,18 +45,52 @@ class MainContainer extends Component {
 
   componentDidMount() {
     const {
+      logicSetId,
       components,
       parentRule,
       rules,
-      variableTemplateItems
+      variables
     } = this.props;
 
     this.setState({
+      logicSetId,
       components,
       parentRule,
       rules,
-      variableTemplateItems,
+      variables,
       componentUpdateKey: this.state.componentUpdateKey + 1
+    });
+  }
+
+  saveApiCallChangeTab = (tabType, tabValue) => {
+    this.saveApiCall();
+    this.changeTab(tabType, tabValue);
+  }
+
+  saveApiCall = () => {
+    axios({
+      method: 'PUT',
+      url: '/admin/settings/logic_sets/' + this.state.logicSetId,
+      data: {
+        logic_sets: {
+          definitions: JSON.stringify({
+            components: this.state.components,
+            parentRule: this.state.parentRule,
+            rules: this.state.rules,
+            variableTemplateItems: this.state.variableTemplateItems
+          })
+        }
+      },
+      responseType: 'json',
+      headers: {
+        'X-CSRF-Token': $("meta[name=csrf-token]").attr('content')
+      }
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
     });
   }
 
@@ -171,7 +210,9 @@ class MainContainer extends Component {
     const components = _.cloneDeep(this.state.components);
     components['@' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
 
-    this.setState({components}, this.changeTab('component', '@' + i));
+    this.setState({components}, () => {
+      this.saveApiCallChangeTab('component', '@' + i)
+    });
   }
 
   saveComponent = () => {
@@ -179,7 +220,9 @@ class MainContainer extends Component {
     components[this.state.currentTab.value].name = this.state.currentName;
     components[this.state.currentTab.value].formula = this.state.currentFormula;
 
-    this.setState({components}, this.changeTab('component', this.state.currentTab.value));
+    this.setState({components}, () => {
+      this.saveApiCallChangeTab('component', this.state.currentTab.value)
+    });
   }
 
   saveparentRule = () => {
@@ -187,7 +230,9 @@ class MainContainer extends Component {
     parentRule.name = this.state.currentName;
     parentRule.formula = this.state.currentFormula;
 
-    this.setState({parentRule}, this.changeTab('parentRule', ''));
+    this.setState({parentRule}, () => {
+      this.saveApiCallChangeTab('parentRule', '')
+    });
   }
 
   saveNewRule = () => {
@@ -198,7 +243,9 @@ class MainContainer extends Component {
     const rules = _.cloneDeep(this.state.rules);
     rules['~' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
 
-    this.setState({rules}, this.changeTab('rule', '~' + i));
+    this.setState({rules}, () => {
+      this.saveApiCallChangeTab('rule', '~' + i)
+    });
   }
 
   saveRule = () => {
@@ -206,7 +253,9 @@ class MainContainer extends Component {
     rules[this.state.currentTab.value].name = this.state.currentName;
     rules[this.state.currentTab.value].formula = this.state.currentFormula;
 
-    this.setState({rules}, this.changeTab('rule', this.state.currentTab.value));
+    this.setState({rules}, () => {
+      this.saveApiCallChangeTab('rule', this.state.currentTab.value)
+    });
   }
 
   runValidations = () => {
@@ -334,7 +383,7 @@ class MainContainer extends Component {
     const logicElements = logicElementsAndId.logicElementsArray;
     const componentTemplateItems = this.convertComponentTemplateItems();
     const ruleTemplateItems = this.convertRuleTemplateItems();
-    const variableTemplateItems = this.state.variableTemplateItems;
+    const variableTemplateItems = this.convertVariableTemplateItems();
 
     return {
       startingId,
@@ -400,6 +449,21 @@ class MainContainer extends Component {
     return ruleTemplateItems;
   }
 
+  convertVariableTemplateItems = () => {
+    const variableTemplateItems = {};
+
+    Object.keys(this.state.variables).map(key => {
+      variableTemplateItems[key] = {
+        value: key,
+        title: this.state.variables[key].name,
+        color: this.state.variables[key].color,
+        canDrag: true
+      };
+    });
+
+    return variableTemplateItems;
+  }
+
   getElementType = logicElementValue => {
     let elementType = ''
 
@@ -425,6 +489,10 @@ class MainContainer extends Component {
   }
 
   render() {
+    const {
+      selectLogicSet
+    } = this.props
+
     return (
       <div className="row">
         <div className="col-md-12">
@@ -450,6 +518,7 @@ class MainContainer extends Component {
             getElementType={this.getElementType}
             validation={this.state.validation}
             parentRule={this.state.parentRule}
+            selectLogicSet={selectLogicSet}
           />
         </div>
       </div>

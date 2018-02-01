@@ -17,7 +17,8 @@ class DragAndDropFormula extends Component {
     updateCurrentFormula: PropTypes.func.isRequired,
     getElementType: PropTypes.func.isRequired,
     validation: PropTypes.object.isRequired,
-    parentRule: PropTypes.object.isRequired
+    parentRule: PropTypes.object.isRequired,
+    selectLogicSet: PropTypes.func.isRequired
   }
 
   constructor(props) {
@@ -310,7 +311,8 @@ class DragAndDropFormula extends Component {
       currentTab,
       saveChanges,
       getElementType,
-      validation
+      validation,
+      selectLogicSet
     } = this.props
 
     const style = {
@@ -331,7 +333,7 @@ class DragAndDropFormula extends Component {
               newId={0}
               type="parentRule"
               value={parentRule.name ? 'Parent Rule - ' + parentRule.name : 'Parent Rule'}
-              color="white"
+              color="red"
               renderIcon={this.renderIcon}
               canDrag={false}
               onClick={() => changeTab('parentRule', '')}
@@ -472,7 +474,8 @@ class DragAndDropFormula extends Component {
           </ul>
         </div>
         <div className="form-group">
-          <button className="btn btn-info pull-right" type="button" onClick={() => saveChanges(logicElements)}>Save</button>
+          <button className="btn btn-info pull-right" type="button" onClick={() => saveChanges(logicElements)}>Save Logic Set</button>
+          <button className="btn btn-default pull-right" type="button" onClick={selectLogicSet}>Select Logic Set</button>
         </div>
       </div>
     );

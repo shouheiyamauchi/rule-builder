@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 
 const BasicElement = props => {
   const {
     value,
-    style,
     backgroundColor,
     onClick
   } = props
 
+  const style = _.cloneDeep(props.style)
   style.backgroundColor = backgroundColor;
 
   return (
