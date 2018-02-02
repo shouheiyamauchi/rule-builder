@@ -8,6 +8,8 @@ const Formula = props => {
       <ul className="parsley-errors-list">
         {props.validation.name.map((error, index) => <li className="parsley-required" key={index}>{error}</li>)}
       </ul>
+      <label>Color</label>
+      <input name="currentColor" className={'form-control'} value={props.currentColor} onChange={props.handleChange} />
     </div>
   );
 }

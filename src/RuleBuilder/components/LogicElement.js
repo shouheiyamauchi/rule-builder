@@ -62,7 +62,7 @@ class LogicElement extends Component {
 		return (
 			<div id={'rule-builder-id-' + id} style={{ opacity }}>
 				<div style={style}>
-					{value.title}
+					{value.name}
 				</div>
 			</div>
 		);
@@ -94,11 +94,11 @@ class LogicElement extends Component {
 			case LogicElementTypes.IFELSE:
 				return <BasicElement value={renderIcon(value)} style={style} backgroundColor={ItemCss.backgroundColor[type]} />;
 			case LogicElementTypes.COMPONENT:
-				return <BasicElement value={componentTemplateItems[value].title} style={style} backgroundColor={componentTemplateItems[value].color} />;
+				return <BasicElement value={componentTemplateItems[value].name} style={style} backgroundColor={componentTemplateItems[value].color} />;
 			case LogicElementTypes.RULE:
-				return <BasicElement value={ruleTemplateItems[value].title} style={style} backgroundColor={ruleTemplateItems[value].color} />;
+				return <BasicElement value={ruleTemplateItems[value].name} style={style} backgroundColor={ruleTemplateItems[value].color} />;
 			case LogicElementTypes.VARIABLE:
-				return <BasicElement value={variableTemplateItems[value].title} style={style} backgroundColor={variableTemplateItems[value].color} />;
+				return <BasicElement value={variableTemplateItems[value].name} style={style} backgroundColor={variableTemplateItems[value].color} />;
 			case LogicElementTypes.NUMBER:
 				return <NumberElement id={id} style={style} value={value} editingId={editingId} changeNumber={changeNumber} backgroundColor={ItemCss.backgroundColor.number} />;
 			case LogicElementTypes.BRACKET:

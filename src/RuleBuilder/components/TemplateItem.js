@@ -62,15 +62,15 @@ class TemplateItem extends Component {
 
 		const style = _.clone(ItemCss.templateItemStyle)
 		const backgroundColor = color || ItemCss.backgroundColor[type]
-		if (!canDrag) { style.opacity = 0.5 ; style.color = 'grey' }
+		if (!canDrag) { style.opacity = 1 ; style.color = 'grey' }
 
 		switch (type) {
 			case 'component':
-				return <BasicElement value={componentTemplateItems[value].title} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
+				return <BasicElement value={componentTemplateItems[value].name} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
 			case 'rule':
-				return <BasicElement value={ruleTemplateItems[value].title} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
+				return <BasicElement value={ruleTemplateItems[value].name} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
 			case 'variable':
-				return <BasicElement value={variableTemplateItems[value].title} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
+				return <BasicElement value={variableTemplateItems[value].name} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
 			default:
 				return <BasicElement value={renderIcon(value)} style={style} backgroundColor={backgroundColor} onClick={onClick} />;
 		};

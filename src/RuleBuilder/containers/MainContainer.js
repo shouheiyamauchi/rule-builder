@@ -14,7 +14,7 @@ class MainContainer extends Component {
     components: PropTypes.object.isRequired,
     parentRule: PropTypes.object.isRequired,
     rules: PropTypes.object.isRequired,
-    variableTemplateItems: PropTypes.object.isRequired,
+    variables: PropTypes.object.isRequired,
     selectLogicSet: PropTypes.func.isRequired
   }
 
@@ -36,6 +36,7 @@ class MainContainer extends Component {
       },
       currentName: '',
       currentFormula: [],
+      currentColor: '',
       validation: {
         name: [],
         formula: []
@@ -99,35 +100,41 @@ class MainContainer extends Component {
       type: tabType,
       value: tabValue
     }}, () => {
-      this.setCurrentNameFormula();
+      this.setCurrentNameFormulaColor();
     });
   }
 
-  setCurrentNameFormula = () => {
+  setCurrentNameFormulaColor = () => {
     this.setState({validation: {name: [], formula: []}}, () => {
       let currentName = '';
       let currentFormula = [];
+      let currentColor = '#000000';
 
       switch (this.state.currentTab.type) {
         case 'newComponent':
-          currentName = ''
-          currentFormula = []
           break;
         case 'component':
-          currentName = this.state.components[this.state.currentTab.value].name
-          currentFormula = this.state.components[this.state.currentTab.value].formula
+          currentName = this.state.components[this.state.currentTab.value].name;
+          currentFormula = this.state.components[this.state.currentTab.value].formula;
+          currentColor = this.state.components[this.state.currentTab.value].color;
           break;
         case 'parentRule':
-          currentName = this.state.parentRule.name
-          currentFormula = this.state.parentRule.formula
+          currentName = this.state.parentRule.name;
+          currentFormula = this.state.parentRule.formula;
+          currentColor = this.state.parentRule.color;
           break;
         case 'newRule':
-          currentName = ''
-          currentFormula = []
           break;
         case 'rule':
-          currentName = this.state.rules[this.state.currentTab.value].name
-          currentFormula = this.state.rules[this.state.currentTab.value].formula
+          currentName = this.state.rules[this.state.currentTab.value].name;
+          currentFormula = this.state.rules[this.state.currentTab.value].formula;
+          currentColor = this.state.rules[this.state.currentTab.value].color;
+          break;
+        case 'newVariable':
+          break;
+        case 'variable':
+          currentName = this.state.variables[this.state.currentTab.value].name;
+          currentColor = this.state.variables[this.state.currentTab.value].color;
           break;
         default:
           break;
@@ -136,6 +143,7 @@ class MainContainer extends Component {
       this.setState({
         currentName,
         currentFormula,
+        currentColor,
         componentUpdateKey: this.state.componentUpdateKey + 1
       })
     })
@@ -181,6 +189,12 @@ class MainContainer extends Component {
           case 'rule':
             this.saveRule();
             break;
+          case 'newVariable':
+            this.saveNewVariable();
+            break;
+          case 'variable':
+            this.saveVariable();
+            break;
           default:
             break;
         };
@@ -208,7 +222,7 @@ class MainContainer extends Component {
     while (this.state.components['@' + i]) i++;
 
     const components = _.cloneDeep(this.state.components);
-    components['@' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
+    components['@' + i] = ({name: this.state.currentName, formula: this.state.currentFormula, color: this.state.currentColor});
 
     this.setState({components}, () => {
       this.saveApiCallChangeTab('component', '@' + i)
@@ -219,6 +233,7 @@ class MainContainer extends Component {
     const components = _.cloneDeep(this.state.components);
     components[this.state.currentTab.value].name = this.state.currentName;
     components[this.state.currentTab.value].formula = this.state.currentFormula;
+    components[this.state.currentTab.value].color = this.state.currentColor;
 
     this.setState({components}, () => {
       this.saveApiCallChangeTab('component', this.state.currentTab.value)
@@ -229,6 +244,7 @@ class MainContainer extends Component {
     const parentRule = _.cloneDeep(this.state.parentRule);
     parentRule.name = this.state.currentName;
     parentRule.formula = this.state.currentFormula;
+    parentRule.color = this.state.currentColor;
 
     this.setState({parentRule}, () => {
       this.saveApiCallChangeTab('parentRule', '')
@@ -241,7 +257,7 @@ class MainContainer extends Component {
     while (this.state.rules['~' + i]) i++;
 
     const rules = _.cloneDeep(this.state.rules);
-    rules['~' + i] = ({name: this.state.currentName, formula: this.state.currentFormula});
+    rules['~' + i] = ({name: this.state.currentName, formula: this.state.currentFormula, color: this.state.currentColor});
 
     this.setState({rules}, () => {
       this.saveApiCallChangeTab('rule', '~' + i)
@@ -252,9 +268,33 @@ class MainContainer extends Component {
     const rules = _.cloneDeep(this.state.rules);
     rules[this.state.currentTab.value].name = this.state.currentName;
     rules[this.state.currentTab.value].formula = this.state.currentFormula;
+    rules[this.state.currentTab.value].color = this.state.currentColor;
 
     this.setState({rules}, () => {
       this.saveApiCallChangeTab('rule', this.state.currentTab.value)
+    });
+  }
+
+  saveNewVariable = () => {
+    // set unique ID
+    let i = 0;
+    while (this.state.variables['#' + i]) i++;
+
+    const variables = _.cloneDeep(this.state.variables);
+    variables['#' + i] = ({name: this.state.currentName, color: this.state.currentColor});
+
+    this.setState({variables}, () => {
+      this.saveApiCallChangeTab('variable', '#' + i)
+    });
+  }
+
+  saveVariable = () => {
+    const variables = _.cloneDeep(this.state.variables);
+    variables[this.state.currentTab.value].name = this.state.currentName;
+    variables[this.state.currentTab.value].color = this.state.currentColor;
+
+    this.setState({variables}, () => {
+      this.saveApiCallChangeTab('variable', this.state.currentTab.value)
     });
   }
 
@@ -277,6 +317,7 @@ class MainContainer extends Component {
     if (this.anyRuleOrComponent()) {
       if (this.checkDuplicateName('components')) validationObject.name.push('A component with this name already exists.');
       if (this.checkDuplicateName('rules')) validationObject.name.push('A rule with this name already exists.');
+      if (this.checkDuplicateName('variables')) validationObject.name.push('A variable with this name already exists.');
     };
   }
 
@@ -294,8 +335,8 @@ class MainContainer extends Component {
     };
   }
 
-  checkDuplicateName = (componentsOrRules) => {
-    const componentsOrRulesObject = componentsOrRules === 'components' ? this.state.components : this.state.rules;
+  checkDuplicateName = (objectType) => {
+    const componentsOrRulesObject = this.state[objectType];
 
     let duplicate = false;
     const componentsOrRulesObjectKeys = Object.keys(componentsOrRulesObject);
@@ -304,10 +345,10 @@ class MainContainer extends Component {
       if (componentsOrRulesObject[key].name === this.state.currentName) { duplicate = true; break; };
     };
 
-    if (this.newRuleOrComponent()) {
+    if (this.newObject()) {
       return duplicate;
     } else {
-      const currentObjectName = (this.state.currentTab.type === 'component' ? this.state.components : this.state.rules)[this.state.currentTab.value].name;
+      const currentObjectName = this.state[(this.state.currentTab.type) + 's'][this.state.currentTab.value].name;
       return this.state.currentName !== currentObjectName && duplicate;
     };
   }
@@ -324,8 +365,8 @@ class MainContainer extends Component {
     return this.state.currentTab.type === 'component' || this.state.currentTab.type === 'newComponent';
   }
 
-  newRuleOrComponent = () => {
-    return this.state.currentTab.type === 'newRule' || this.state.currentTab.type === 'newComponent';
+  newObject = () => {
+    return this.state.currentTab.type === 'newRule' || this.state.currentTab.type === 'newComponent' || this.state.currentTab.type === 'newVariable';
   }
 
   existingRuleOrComponent = () => {
@@ -425,8 +466,8 @@ class MainContainer extends Component {
     Object.keys(this.state.components).map(key => {
       componentTemplateItems[key] = {
         value: key,
-        title: this.state.components[key].name,
-        color: 'black',
+        name: this.state.components[key].name,
+        color: this.state.components[key].color,
         canDrag: true
       };
     });
@@ -440,8 +481,8 @@ class MainContainer extends Component {
     Object.keys(this.state.rules).map(key => {
       ruleTemplateItems[key] = {
         value: key,
-        title: this.state.rules[key].name,
-        color: 'black',
+        name: this.state.rules[key].name,
+        color: this.state.rules[key].color,
         canDrag: true
       };
     });
@@ -455,7 +496,7 @@ class MainContainer extends Component {
     Object.keys(this.state.variables).map(key => {
       variableTemplateItems[key] = {
         value: key,
-        title: this.state.variables[key].name,
+        name: this.state.variables[key].name,
         color: this.state.variables[key].color,
         canDrag: true
       };
@@ -504,6 +545,7 @@ class MainContainer extends Component {
             rules={this.state.rules}
             currentName={this.state.currentName}
             validation={this.state.validation}
+            currentColor={this.state.currentColor}
             handleChange={this.handleChange}
           />
         </div>

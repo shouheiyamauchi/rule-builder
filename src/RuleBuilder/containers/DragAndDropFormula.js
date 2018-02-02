@@ -333,7 +333,7 @@ class DragAndDropFormula extends Component {
               newId={0}
               type="parentRule"
               value={parentRule.name ? 'Parent Rule - ' + parentRule.name : 'Parent Rule'}
-              color="red"
+              color={parentRule.color}
               renderIcon={this.renderIcon}
               canDrag={false}
               onClick={() => changeTab('parentRule', '')}
@@ -349,7 +349,7 @@ class DragAndDropFormula extends Component {
                 ruleTemplateItems={ruleTemplateItems}
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
-                canDrag={(currentTab.type === 'parentRule' || currentTab.type === 'newRule' || currentTab.type === 'rule')}
+                canDrag={currentTab.type === 'parentRule' || currentTab.type === 'newRule' || currentTab.type === 'rule'}
                 onClick={() => changeTab('rule', ruleTemplateItems[key].value)}
                 removeElement={this.removeElement}
               />
@@ -372,7 +372,7 @@ class DragAndDropFormula extends Component {
                   componentTemplateItems={componentTemplateItems}
                   updateDragging={this.updateDragging}
                   renderIcon={this.renderIcon}
-                  canDrag={true}
+                  canDrag={currentTab.type !== 'newVariable' && currentTab.type !== 'variable'}
                   onClick={() => changeTab('component', componentTemplateItems[key].value)}
                   removeElement={this.removeElement}
                 />
@@ -394,6 +394,7 @@ class DragAndDropFormula extends Component {
         </div>
         <div className="form-group">
           <label>Variables</label>&nbsp;
+          <span className="glyphicon glyphicon-plus-sign" aria-hidden="true" onClick={() => changeTab('newVariable', '')} />
           <div style={style}>
             {Object.keys(variableTemplateItems).length > 0 ? (
               Object.keys(variableTemplateItems).map((key, i) => (
@@ -407,7 +408,8 @@ class DragAndDropFormula extends Component {
                   variableTemplateItems={variableTemplateItems}
                   updateDragging={this.updateDragging}
                   renderIcon={this.renderIcon}
-                  canDrag={true}
+                  canDrag={currentTab.type !== 'newVariable' && currentTab.type !== 'variable'}
+                  onClick={() => changeTab('variable', variableTemplateItems[key].value)}
                   removeElement={this.removeElement}
                 />
               ))
@@ -438,7 +440,7 @@ class DragAndDropFormula extends Component {
                 value={templateItem}
                 updateDragging={this.updateDragging}
                 renderIcon={this.renderIcon}
-                canDrag={true}
+                canDrag={currentTab.type !== 'newVariable' && currentTab.type !== 'variable'}
                 removeElement={this.removeElement}
               />
             ))}

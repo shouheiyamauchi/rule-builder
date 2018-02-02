@@ -73,20 +73,7 @@ class App extends Component {
         formula: []
       },
       rules: {},
-      variables: {
-        '#1': {
-          name: 'Variable 1',
-          color: 'green'
-        },
-        '#2': {
-          name: 'Variable 2',
-          color: '#fff000'
-        },
-        '#3': {
-          name: 'Variable 3',
-          color: 'pink'
-        }
-      }
+      variables: {}
     }
 
     const {

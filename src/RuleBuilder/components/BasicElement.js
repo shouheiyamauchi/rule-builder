@@ -25,7 +25,7 @@ BasicElement.propTypes = {
     PropTypes.object
   ]).isRequired,
   style: PropTypes.object.isRequired,
-  backgroundColor: PropTypes.string.isRequired,
+  backgroundColor: PropTypes.string,
   onClick: PropTypes.func
 }
 

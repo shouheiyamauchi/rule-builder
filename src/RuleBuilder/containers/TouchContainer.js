@@ -9,7 +9,7 @@ class TouchContainer extends Component {
     components: PropTypes.object.isRequired,
     parentRule: PropTypes.object.isRequired,
     rules: PropTypes.object.isRequired,
-    variableTemplateItems: PropTypes.object.isRequired,
+    variables: PropTypes.object.isRequired,
     selectLogicSet: PropTypes.func.isRequired
   }
 
